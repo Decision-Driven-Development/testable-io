@@ -22,24 +22,7 @@
  * SOFTWARE.
  */
 
-package ewc.utilities.testableio.http;
-
-import ewc.utilities.testableio.core.GenericRequest;
-import java.util.NoSuchElementException;
-
 /**
- * This class provides configurable responses for HTTP-related utilities.
- * It is designed to be extended or modified to suit specific use cases.
- *
- * @since 0.1
+ * This package contains tests for core classes of the TestableIO library.
  */
-class ConfigurableResponses {
-    /**
-     * Returns the next response for the given request.
-     *
-     * @param request The request for which to get the next response.
-     */
-    public void nextResponseFor(final GenericRequest<?> request) {
-        throw new NoSuchElementException("No responses configured");
-    }
-}
+package ewc.utilities.testableio.core;

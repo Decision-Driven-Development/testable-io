@@ -24,6 +24,8 @@
 
 package ewc.utilities.testableio.http;
 
+import ewc.utilities.testableio.core.GenericRequest;
+import java.util.NoSuchElementException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -38,5 +40,14 @@ final class ConfigurableResponsesTest {
     void couldBeInstantiated() {
         final ConfigurableResponses target = new ConfigurableResponses();
         Assertions.assertThat(target).isNotNull();
+    }
+
+    @Test
+    void throwsIfNoResponsesConfigured() {
+        final ConfigurableResponses target = new ConfigurableResponses();
+        final GenericRequest<String> request = new GenericRequest<>("Hello");
+        Assertions.assertThatExceptionOfType(NoSuchElementException.class)
+            .isThrownBy(() -> target.nextResponseFor(request))
+            .withMessage("No responses configured");
     }
 }
