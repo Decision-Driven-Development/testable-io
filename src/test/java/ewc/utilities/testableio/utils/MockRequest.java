@@ -37,19 +37,34 @@ public final class MockRequest {
     /**
      * An instance of a testable GenericRequest.
      */
-    private final GenericRequest<String> request;
+    private final GenericRequest<String> assigned;
+
+    /**
+     * An instance of a testable GenericRequest with an unknown client.
+     */
+    private final GenericRequest<String> unknown;
 
     public MockRequest() {
-        this.request = GenericRequest.<String>builder()
+        this.assigned = GenericRequest.<String>builder()
             .parameters(Map.of("clientId", "12345"))
+            .meta(Map.of("url", "http://localhost:8080/recommendations"))
+            .client(MockRequest.clientDiscriminator())
+            .query(MockRequest.queryDiscriminator())
+            .build();
+        this.unknown = GenericRequest.<String>builder()
+            .parameters(Map.of("clientId", "67890"))
             .meta(Map.of("url", "http://localhost:8080/recommendations"))
             .client(MockRequest.clientDiscriminator())
             .query(MockRequest.queryDiscriminator())
             .build();
     }
 
-    public GenericRequest<String> testable() {
-        return this.request;
+    public GenericRequest<String> assignedToClient() {
+        return this.assigned;
+    }
+
+    public GenericRequest<String> clientUnknown() {
+        return this.unknown;
     }
 
     private static Function<GenericRequest<String>, String> queryDiscriminator() {

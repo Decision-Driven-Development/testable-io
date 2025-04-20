@@ -25,6 +25,7 @@
 package ewc.utilities.testableio.core;
 
 import ewc.utilities.testableio.utils.MockRequest;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -45,9 +46,46 @@ final class ConfigurableResponsesTest {
     @Test
     void throwsIfNoResponsesConfigured() {
         final ConfigurableResponses target = new ConfigurableResponses();
-        final GenericRequest<String> request = new MockRequest().testable();
+        final GenericRequest<String> request = new MockRequest().assignedToClient();
         Assertions.assertThatExceptionOfType(NoSuchElementException.class)
             .isThrownBy(() -> target.nextResponseFor(request))
             .withMessage("No responses configured");
+    }
+
+    @Test
+    void returnsTheResponseThatCorrespondsToTheRequest() {
+        final ConfigurableResponses target = new ConfigurableResponses();
+        target.setDefaultResponsesFor(
+            "getHomePage",
+            new ConfiguredResponse(
+                "home",
+                new GenericResponse<>("Home page", 0, Map.of())
+            )
+        );
+        target.setDefaultResponsesFor(
+            "getItemRecommendations",
+            new ConfiguredResponse(
+                "recommendations",
+                new GenericResponse<>("Authorization page", 1000, Map.of())
+            )
+        );
+        target.setResponsesFor(
+            "12345",
+            "getItemRecommendations",
+            new ConfiguredResponse(
+                "recommendations",
+                new GenericResponse<>("Recommendations page", 0, Map.of())
+            )
+        );
+        final MockRequest request = new MockRequest();
+        Assertions.assertThat(target.nextResponseFor(request.assignedToClient()))
+            .isNotNull()
+            .extracting("contents").isEqualTo("Recommendations page");
+        final long now = System.currentTimeMillis();
+        Assertions.assertThat(target.nextResponseFor(request.clientUnknown()))
+            .isNotNull()
+            .extracting("contents").isEqualTo("Authorization page");
+        Assertions.assertThat(System.currentTimeMillis() - now)
+            .isCloseTo(1000, Assertions.withinPercentage(5));
     }
 }

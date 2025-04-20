@@ -60,6 +60,38 @@ final class ConfiguredResponseTest {
             .hasMessageContaining("No more configured responses for");
     }
 
+    @Test
+    void shouldThrowAnExceptionThatIsSetAsAResponse() {
+        final ConfiguredResponse response = new ConfiguredResponse(
+            "exception response",
+            new GenericResponse<>(
+                new ArithmeticException("test exception"),
+                1000,
+                Map.of("http_response_code", 200, "x-header", "12345")
+            )
+        );
+        Assertions.assertThatThrownBy(response::next)
+            .isInstanceOf(ArithmeticException.class)
+            .hasMessageContaining("test exception");
+    }
+
+    @Test
+    void shouldReturnAllTheSpecifiedResponsesInOrder() {
+        final ConfiguredResponse response = new ConfiguredResponse(
+            "multiple responses",
+            new GenericResponse<>("response 1", 0, Map.of()),
+            new GenericResponse<>(new ArithmeticException("test exception"), 0, Map.of())
+        );
+        Assertions.assertThat(response.next())
+            .extracting("contents").isEqualTo("response 1");
+        Assertions.assertThatThrownBy(response::next)
+            .isInstanceOf(ArithmeticException.class)
+            .hasMessageContaining("test exception");
+        Assertions.assertThatThrownBy(response::next)
+            .isInstanceOf(NoSuchElementException.class)
+            .hasMessageContaining("No more configured responses for multiple responses");
+    }
+
     private static GenericResponse<String> getGenericResponse() {
         return new GenericResponse<>(
             "sample response",

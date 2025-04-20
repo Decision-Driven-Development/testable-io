@@ -24,7 +24,10 @@
 
 package ewc.utilities.testableio.core;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import lombok.SneakyThrows;
 
 /**
  * This class provides configurable responses for HTTP-related utilities.
@@ -34,12 +37,49 @@ import java.util.NoSuchElementException;
  */
 class ConfigurableResponses {
     /**
+     * The storage for all the configured responses.
+     */
+    private final Map<String, ConfiguredResponse> responses = new HashMap<>();
+
+    /**
      * Returns the next response for the given request.
      *
      * @param request The request for which to get the next response.
      * @return The next response object.
      */
-    public Object nextResponseFor(final GenericRequest<?> request) {
-        throw new NoSuchElementException("No responses configured");
+    @SneakyThrows
+    public GenericResponse<?> nextResponseFor(final GenericRequest<?> request) {
+        final String key;
+        if (this.responses.containsKey(ConfigurableResponses.responseKeyFor(request))) {
+            key = ConfigurableResponses.responseKeyFor(request);
+        } else {
+            key = request.queryId();
+        }
+        if (!this.responses.containsKey(key)) {
+            throw new NoSuchElementException("No responses configured");
+        }
+        final GenericResponse<?> response = this.responses.get(key).next();
+        if (response.delay() > 0) {
+            Thread.sleep(response.delay());
+        }
+        return response;
+    }
+
+    public void setDefaultResponsesFor(final String query, final ConfiguredResponse response) {
+        this.responses.put(query, response);
+    }
+
+    public void setResponsesFor(
+        final String client, final String query, final ConfiguredResponse response
+    ) {
+        this.responses.put(ConfigurableResponses.responseKeyFor(client, query), response);
+    }
+
+    private static String responseKeyFor(final GenericRequest<?> request) {
+        return ConfigurableResponses.responseKeyFor(request.clientId(), request.queryId());
+    }
+
+    private static String responseKeyFor(final String client, final String query) {
+        return "%s::%s".formatted(client, query);
     }
 }
