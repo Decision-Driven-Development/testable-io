@@ -27,43 +27,29 @@ package ewc.utilities.testableio.core;
 import java.util.Map;
 import java.util.function.Function;
 import lombok.NonNull;
-import lombok.RequiredArgsConstructor;
 
 /**
  * GenericResponse is a class that represents a response object with generic contents.
  *
  * @param <T> The type of the contents of the response. This can be any type of object, such as a
- *            string, JSON object, or any other data structure.
+ * string, JSON object, or any other data structure.
+ * @param contents The contents of the response. This can be any type of object, such as a string,
+ * JSON object, or any other data structure.
+ * @param delay The delay in milliseconds before the response is sent. This can be used to
+ * simulate network latency or processing time. Is expressed in milliseconds and
+ * expected to be positive or zero.
+ * @param metadata The metadata associated with the response. This can include any additional
+ * information that is relevant to the response but not necessarily part of the
+ * response data itself.
  * @since 0.1
  */
-@RequiredArgsConstructor
-public class GenericResponse<T> {
-    /**
-     * The contents of the response. This can be any type of object, such as a string,
-     * JSON object, or any other data structure.
-     */
-    @NonNull
-    private final T contents;
-
-    /**
-     * The delay in milliseconds before the response is sent. This can be used to simulate
-     * network latency or processing time. Is expressed in milliseconds and expected to be
-     * positive or zero.
-     */
-    private final int delay;
-
-    /**
-     * The metadata associated with the response. This can include any additional information
-     * that is relevant to the response but not necessarily part of the response data itself.
-     */
-    private final Map<String, Object> metadata;
-
+public record GenericResponse<T>(@NonNull T contents, int delay, Map<String, Object> metadata) {
     /**
      * This method allows you to transform the contents of the response to any class using a
      * provided transformer function.
      *
      * @param transformer The function that will be used to transform the contents of the response.
-     * @param <R>         The type of the transformed contents.
+     * @param <R> The type of the transformed contents.
      * @return The transformed contents of the response.
      */
     public <R> R contentsAs(final Function<GenericResponse<T>, R> transformer) {
@@ -71,32 +57,5 @@ public class GenericResponse<T> {
             throw new IllegalArgumentException("Transformer function cannot be null");
         }
         return transformer.apply(this);
-    }
-
-    /**
-     * This method allows you to get the response's contents.
-     *
-     * @return The contents of the response.
-     */
-    public T getContents() {
-        return this.contents;
-    }
-
-    /**
-     * This method allows you to get the delay before the response is sent.
-     *
-     * @return The delay in milliseconds.
-     */
-    public int getDelay() {
-        return this.delay;
-    }
-
-    /**
-     * This method allows you to get the metadata associated with the response.
-     *
-     * @return The metadata of the response.
-     */
-    public Map<String, Object> getMetadata() {
-        return this.metadata;
     }
 }

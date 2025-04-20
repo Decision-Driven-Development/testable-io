@@ -43,7 +43,7 @@ final class GenericResponseTest {
     @Test
     void shouldBeConvertedToString() {
         final GenericResponse<String> target = GenericResponseTest.getGenericResponse();
-        final String result = target.contentsAs(GenericResponse::getContents);
+        final String result = target.contentsAs(GenericResponse::contents);
         Assertions.assertThat(result).isEqualTo("test");
     }
 
@@ -52,9 +52,9 @@ final class GenericResponseTest {
         final GenericResponse<String> target = GenericResponseTest.getGenericResponse();
         final HttpResponseSample result = target.contentsAs(
             response -> new HttpResponseSample(
-                response.getContents(),
-                (Integer) response.getMetadata().get("http_response_code"),
-                (String) response.getMetadata().get("x-header")
+                response.contents(),
+                (Integer) response.metadata().get("http_response_code"),
+                (String) response.metadata().get("x-header")
             )
         );
         Assertions.assertThat(result)
