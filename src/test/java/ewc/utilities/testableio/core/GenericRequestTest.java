@@ -22,24 +22,29 @@
  * SOFTWARE.
  */
 
-package ewc.utilities.testableio.http;
+package ewc.utilities.testableio.core;
 
-import ewc.utilities.testableio.core.GenericRequest;
-import java.util.NoSuchElementException;
+import ewc.utilities.testableio.utils.MockRequest;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
 
 /**
- * This class provides configurable responses for HTTP-related utilities.
- * It is designed to be extended or modified to suit specific use cases.
+ * Unit-tests for the {@link GenericRequest} class.
  *
  * @since 0.1
  */
-class ConfigurableResponses {
-    /**
-     * Returns the next response for the given request.
-     *
-     * @param request The request for which to get the next response.
-     */
-    public void nextResponseFor(final GenericRequest<?> request) {
-        throw new NoSuchElementException("No responses configured");
+final class GenericRequestTest {
+    @Test
+    void shouldExtractClientId() {
+        final GenericRequest<String> target = new MockRequest().testable();
+        Assertions.assertThat(target.clientId())
+            .isEqualToIgnoringCase("12345");
+    }
+
+    @Test
+    void shouldExtractQueryId() {
+        final GenericRequest<String> target = new MockRequest().testable();
+        Assertions.assertThat(target.queryId())
+            .isEqualTo("getItemRecommendations");
     }
 }

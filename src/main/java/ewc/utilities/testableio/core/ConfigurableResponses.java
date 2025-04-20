@@ -22,7 +22,24 @@
  * SOFTWARE.
  */
 
+package ewc.utilities.testableio.core;
+
+import java.util.NoSuchElementException;
+
 /**
- * This package provides utilities for configuring HTTP responses in a testable manner.
+ * This class provides configurable responses for HTTP-related utilities.
+ * It is designed to be extended or modified to suit specific use cases.
+ *
+ * @since 0.1
  */
-package ewc.utilities.testableio.http;
+class ConfigurableResponses {
+    /**
+     * Returns the next response for the given request.
+     *
+     * @param request The request for which to get the next response.
+     * @return The next response object.
+     */
+    public Object nextResponseFor(final GenericRequest<?> request) {
+        throw new NoSuchElementException("No responses configured");
+    }
+}

@@ -22,7 +22,32 @@
  * SOFTWARE.
  */
 
+package ewc.utilities.testableio.core;
+
+import ewc.utilities.testableio.utils.MockRequest;
+import java.util.NoSuchElementException;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.Test;
+
 /**
- * This package provides utilities for configuring HTTP responses in a testable manner.
+ * This class provides unit tests for the {@link ConfigurableResponses} class.
+ * It verifies the default values and behavior of the class.
+ *
+ * @since 0.1
  */
-package ewc.utilities.testableio.http;
+final class ConfigurableResponsesTest {
+    @Test
+    void couldBeInstantiated() {
+        final ConfigurableResponses target = new ConfigurableResponses();
+        Assertions.assertThat(target).isNotNull();
+    }
+
+    @Test
+    void throwsIfNoResponsesConfigured() {
+        final ConfigurableResponses target = new ConfigurableResponses();
+        final GenericRequest<String> request = new MockRequest().testable();
+        Assertions.assertThatExceptionOfType(NoSuchElementException.class)
+            .isThrownBy(() -> target.nextResponseFor(request))
+            .withMessage("No responses configured");
+    }
+}
