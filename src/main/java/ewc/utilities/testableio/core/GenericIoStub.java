@@ -26,19 +26,22 @@ package ewc.utilities.testableio.core;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.NoSuchElementException;
-import lombok.SneakyThrows;
 
 /**
- * This class provides configurable responses for all the queries made by a single 'client'.
+ * The class that keeps track of all the stubs for all the clients.
  *
  * @since 0.1
  */
-class SingleClientStubs {
+public class GenericIoStub {
     /**
-     * The storage for all the configured responses.
+     * The default stubs for all clients.
      */
-    private final Map<String, SingleQueryResponses> stubs = new HashMap<>();
+    private final SingleClientStubs common = new SingleClientStubs();
+
+    /**
+     * The stubs for each client.
+     */
+    private final Map<String, SingleClientStubs> stubs = new HashMap<>();
 
     /**
      * Returns the next response for the given query.
@@ -46,24 +49,33 @@ class SingleClientStubs {
      * @param query The query for which to get the next response.
      * @return The next response object.
      */
-    @SneakyThrows
     public GenericResponse<?> nextResponseFor(final GenericRequest<?> query) {
-        final String key = query.queryId();
-        if (!this.stubs.containsKey(key)) {
-            throw new NoSuchElementException("No responses configured");
-        }
-        final GenericResponse<?> response = this.stubs.get(key).next();
-        if (response.delay() > 0) {
-            Thread.sleep(response.delay());
-        }
-        return response;
+        return this.stubs
+            .getOrDefault(query.clientId(), this.common)
+            .nextResponseFor(query);
     }
 
-    public void setSingleResponseFor(final String query, final GenericResponse<?> response) {
-        this.stubs.put(query, new SingleQueryResponses(query, response));
+    /**
+     * Adds a default stub for all clients.
+     *
+     * @param query The query ID for which to add the stub.
+     * @param response The stub response to be returned for the specified query.
+     */
+    public void addDefaultStub(final String query, final GenericResponse<?> response) {
+        this.common.setSingleResponseFor(query, response);
     }
 
-    public void setMultipleResponsesFor(final String query, final GenericResponse<?>... responses) {
-        this.stubs.put(query, new SingleQueryResponses(query, responses));
+    /**
+     * Adds a stub for a specific client.
+     *
+     * @param client The client ID for which to add the stub.
+     * @param query The query ID for which to add the stub.
+     * @param response The stub response to be returned for the specified query.
+     */
+    public void addStubForClient(
+        final String client, final String query, final GenericResponse<?> response
+    ) {
+        this.stubs.putIfAbsent(client, new SingleClientStubs());
+        this.stubs.get(client).setSingleResponseFor(query, response);
     }
 }

@@ -55,36 +55,19 @@ final class SingleClientStubsTest {
     @Test
     void returnsTheResponseThatCorrespondsToTheRequest() {
         final SingleClientStubs target = new SingleClientStubs();
-        target.setDefaultResponsesFor(
-            "getHomePage",
-            new SingleQueryResponses(
-                "home",
-                new GenericResponse<>("Home page", 0, Map.of())
-            )
+        target.setSingleResponseFor(
+            "getHomePage", new GenericResponse<>("Home page", 0, Map.of())
         );
-        target.setDefaultResponsesFor(
-            "getItemRecommendations",
-            new SingleQueryResponses(
-                "recommendations",
-                new GenericResponse<>("Authorization page", 1000, Map.of())
-            )
+        target.setSingleResponseFor(
+            "getItemRecommendations", new GenericResponse<>("Recommendations page", 1000, Map.of())
         );
-        target.setResponsesFor(
-            "12345",
-            "getItemRecommendations",
-            new SingleQueryResponses(
-                "recommendations",
-                new GenericResponse<>("Recommendations page", 0, Map.of())
-            )
-        );
-        final MockRequest request = new MockRequest();
-        Assertions.assertThat(target.nextResponseFor(request.assignedToClient()))
+        Assertions.assertThat(target.nextResponseFor(new MockRequest().clientUnknown()))
             .isNotNull()
             .extracting("contents").isEqualTo("Recommendations page");
         final long now = System.currentTimeMillis();
-        Assertions.assertThat(target.nextResponseFor(request.clientUnknown()))
+        Assertions.assertThat(target.nextResponseFor(new MockRequest().assignedToClient()))
             .isNotNull()
-            .extracting("contents").isEqualTo("Authorization page");
+            .extracting("contents").isEqualTo("Recommendations page");
         Assertions.assertThat(System.currentTimeMillis() - now)
             .isCloseTo(1000, Assertions.withinPercentage(5));
     }

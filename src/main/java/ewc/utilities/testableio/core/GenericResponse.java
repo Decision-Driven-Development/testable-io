@@ -32,18 +32,22 @@ import lombok.NonNull;
  * GenericResponse is a class that represents a response object with generic contents.
  *
  * @param <T> The type of the contents of the response. This can be any type of object, such as a
- * string, JSON object, or any other data structure.
+ *  string, JSON object, or any other data structure.
  * @param contents The contents of the response. This can be any type of object, such as a string,
- * JSON object, or any other data structure.
+ *  JSON object, or any other data structure.
  * @param delay The delay in milliseconds before the response is sent. This can be used to
- * simulate network latency or processing time. Is expressed in milliseconds and
- * expected to be positive or zero.
+ *  simulate network latency or processing time. Is expressed in milliseconds and
+ *  expected to be positive or zero.
  * @param metadata The metadata associated with the response. This can include any additional
- * information that is relevant to the response but not necessarily part of the
- * response data itself.
+ *  information that is relevant to the response but not necessarily part of the
+ *  response data itself.
  * @since 0.1
  */
 public record GenericResponse<T>(@NonNull T contents, int delay, Map<String, Object> metadata) {
+    public GenericResponse(final @NonNull T contents) {
+        this(contents, 0, Map.of());
+    }
+
     /**
      * This method allows you to transform the contents of the response to any class using a
      * provided transformer function.
