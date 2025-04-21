@@ -25,11 +25,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>com.jcabi</groupId>
-            <artifactId>jcabi-matchers</artifactId>
-            <scope>test</scope>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.assertj</groupId>

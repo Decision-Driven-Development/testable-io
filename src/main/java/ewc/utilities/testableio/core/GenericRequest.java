@@ -83,4 +83,15 @@ public class GenericRequest<T> {
     public String queryId() {
         return this.query.apply(this);
     }
+
+    /**
+     * Returns the request in the form that is required by the outside system and the real adapter.
+     *
+     * @param transformer Function that transform the generic request into the real request.
+     * @param <R> The type of the real request.
+     * @return The real request object, i.e. {@code HttpRequestEntity}.
+     */
+    public <R> R realRequest(final Function<GenericRequest<T>, R> transformer) {
+        return transformer.apply(this);
+    }
 }
