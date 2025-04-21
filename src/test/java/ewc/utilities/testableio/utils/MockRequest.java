@@ -46,14 +46,22 @@ public final class MockRequest {
 
     public MockRequest() {
         this.assigned = GenericRequest.<String>builder()
-            .parameters(Map.of("clientId", "12345"))
-            .meta(Map.of("url", "http://localhost:8080/recommendations"))
+            .parameters(
+                Map.of(
+                    "clientId", "12345",
+                    "url", "http://localhost:8080/recommendations"
+                )
+            )
             .client(MockRequest.clientDiscriminator())
             .query(MockRequest.queryDiscriminator())
             .build();
         this.unknown = GenericRequest.<String>builder()
-            .parameters(Map.of("clientId", "67890"))
-            .meta(Map.of("url", "http://localhost:8080/recommendations"))
+            .parameters(
+                Map.of(
+                    "clientId", "67890",
+                    "url", "http://localhost:8080/recommendations"
+                )
+            )
             .client(MockRequest.clientDiscriminator())
             .query(MockRequest.queryDiscriminator())
             .build();
@@ -70,7 +78,7 @@ public final class MockRequest {
     private static Function<GenericRequest<String>, String> queryDiscriminator() {
         return request -> {
             final String result;
-            if (request.metadata("url").toString().contains("recommendations")) {
+            if (request.parameter("url").toString().contains("recommendations")) {
                 result = "getItemRecommendations";
             } else {
                 result = "home";

@@ -40,12 +40,6 @@ import lombok.Builder;
 @Builder
 public class GenericRequest<T> {
     /**
-     * The metadata of the request. These just describe the request but not necessarily
-     * the request data.
-     */
-    private final Map<String, Object> meta;
-
-    /**
      * The parameters of the request. These are used to modify the request data.
      */
     private final Map<String, Object> parameters;
@@ -68,16 +62,6 @@ public class GenericRequest<T> {
      */
     public Object parameter(final String parameter) {
         return this.parameters.get(parameter);
-    }
-
-    /**
-     * Fetches one of the metadata fields for the request.
-     *
-     * @param field The name of the field to fetch.
-     * @return The value of the metadata field.
-     */
-    public Object metadata(final String field) {
-        return this.meta.get(field);
     }
 
     /**
