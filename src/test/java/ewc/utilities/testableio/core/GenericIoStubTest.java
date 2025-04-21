@@ -37,13 +37,13 @@ final class GenericIoStubTest {
     /**
      * The request for the default (unspecified) client.
      */
-    private static final GenericRequest<String> ANY_CLIENT =
+    private static final GenericRequest ANY_CLIENT =
         new MockRequest().clientUnknown();
 
     /**
      * The request for a specific client.
      */
-    private static final GenericRequest<String> SPECIFIC_CLIENT =
+    private static final GenericRequest SPECIFIC_CLIENT =
         new MockRequest().assignedToClient();
 
     /**

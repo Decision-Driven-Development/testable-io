@@ -49,7 +49,7 @@ public class GenericIoStub {
      * @param query The query for which to get the next response.
      * @return The next response object.
      */
-    public GenericResponse<?> nextResponseFor(final GenericRequest<?> query) {
+    public GenericResponse<?> nextResponseFor(final GenericRequest query) {
         return this.stubs
             .getOrDefault(query.clientId(), this.common)
             .nextResponseFor(query);

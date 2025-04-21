@@ -47,7 +47,7 @@ class SingleClientStubs {
      * @return The next response object.
      */
     @SneakyThrows
-    public GenericResponse<?> nextResponseFor(final GenericRequest<?> query) {
+    public GenericResponse<?> nextResponseFor(final GenericRequest query) {
         final String key = query.queryId();
         if (!this.stubs.containsKey(key)) {
             throw new NoSuchElementException("No responses configured");

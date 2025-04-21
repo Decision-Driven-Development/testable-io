@@ -34,11 +34,10 @@ import lombok.Builder;
  * data structure to get the data from the request (to find the corresponding response)
  * and to create the real query to the outside system.
  *
- * @param <T> The type of the request contents.
  * @since 0.1
  */
 @Builder
-public class GenericRequest<T> {
+public class GenericRequest {
     /**
      * The parameters of the request. These are used to modify the request data.
      */
@@ -47,12 +46,12 @@ public class GenericRequest<T> {
     /**
      * The function that will be used to extract the client ID from the request data.
      */
-    private final Function<GenericRequest<T>, String> client;
+    private final Function<GenericRequest, String> client;
 
     /**
      * The function that will be used to extract the query ID from the request data.
      */
-    private final Function<GenericRequest<T>, String> query;
+    private final Function<GenericRequest, String> query;
 
     /**
      * Fetches the value of the specified parameter from the request.
@@ -91,7 +90,7 @@ public class GenericRequest<T> {
      * @param <R> The type of the real request.
      * @return The real request object, i.e. {@code HttpRequestEntity}.
      */
-    public <R> R realRequest(final Function<GenericRequest<T>, R> transformer) {
+    public <R> R realRequest(final Function<GenericRequest, R> transformer) {
         return transformer.apply(this);
     }
 }

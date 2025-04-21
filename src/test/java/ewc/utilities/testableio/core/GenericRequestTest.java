@@ -36,14 +36,14 @@ import org.junit.jupiter.api.Test;
 final class GenericRequestTest {
     @Test
     void shouldExtractClientId() {
-        final GenericRequest<String> target = new MockRequest().assignedToClient();
+        final GenericRequest target = new MockRequest().assignedToClient();
         Assertions.assertThat(target.clientId())
             .isEqualToIgnoringCase("12345");
     }
 
     @Test
     void shouldExtractQueryId() {
-        final GenericRequest<String> target = new MockRequest().assignedToClient();
+        final GenericRequest target = new MockRequest().assignedToClient();
         Assertions.assertThat(target.queryId())
             .isEqualTo("getItemRecommendations");
     }

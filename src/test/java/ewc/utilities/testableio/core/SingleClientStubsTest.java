@@ -46,7 +46,7 @@ final class SingleClientStubsTest {
     @Test
     void throwsIfNoResponsesConfigured() {
         final SingleClientStubs target = new SingleClientStubs();
-        final GenericRequest<String> request = new MockRequest().assignedToClient();
+        final GenericRequest request = new MockRequest().assignedToClient();
         Assertions.assertThatExceptionOfType(NoSuchElementException.class)
             .isThrownBy(() -> target.nextResponseFor(request))
             .withMessage("No responses configured");

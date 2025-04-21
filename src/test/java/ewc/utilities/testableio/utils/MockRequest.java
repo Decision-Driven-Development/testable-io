@@ -37,12 +37,12 @@ public final class MockRequest {
     /**
      * An instance of a testable GenericRequest.
      */
-    private final GenericRequest<String> assigned;
+    private final GenericRequest assigned;
 
     /**
      * An instance of a testable GenericRequest with an unknown client.
      */
-    private final GenericRequest<String> unknown;
+    private final GenericRequest unknown;
 
     public MockRequest() {
         this.assigned = GenericRequest.<String>builder()
@@ -67,15 +67,15 @@ public final class MockRequest {
             .build();
     }
 
-    public GenericRequest<String> assignedToClient() {
+    public GenericRequest assignedToClient() {
         return this.assigned;
     }
 
-    public GenericRequest<String> clientUnknown() {
+    public GenericRequest clientUnknown() {
         return this.unknown;
     }
 
-    private static Function<GenericRequest<String>, String> queryDiscriminator() {
+    private static Function<GenericRequest, String> queryDiscriminator() {
         return request -> {
             final String result;
             if (request.parameter("url").toString().contains("recommendations")) {
@@ -87,7 +87,7 @@ public final class MockRequest {
         };
     }
 
-    private static Function<GenericRequest<String>, String> clientDiscriminator() {
+    private static Function<GenericRequest, String> clientDiscriminator() {
         return request ->
             request.parameter("clientId").toString();
     }
