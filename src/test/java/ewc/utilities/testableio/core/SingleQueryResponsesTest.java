@@ -30,16 +30,16 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit-tests for the {@link ConfiguredResponse} class.
+ * Unit-tests for the {@link SingleQueryResponses} class.
  *
  * @since 0.1
  */
-final class ConfiguredResponseTest {
+final class SingleQueryResponsesTest {
     @Test
     void shouldReturnTheSameResponseForeverIfItIsASingleResponse() {
-        final ConfiguredResponse response = new ConfiguredResponse(
+        final SingleQueryResponses response = new SingleQueryResponses(
             "single response",
-            ConfiguredResponseTest.getGenericResponse()
+            SingleQueryResponsesTest.getGenericResponse()
         );
         Assertions.assertThat(response.next())
             .isEqualTo(response.next())
@@ -49,9 +49,9 @@ final class ConfiguredResponseTest {
 
     @Test
     void shouldReturnJustOneResponseIfItIsAnArrayWithOneElement() {
-        final ConfiguredResponse response = new ConfiguredResponse(
+        final SingleQueryResponses response = new SingleQueryResponses(
             "array with one element",
-            new GenericResponse<?>[] {ConfiguredResponseTest.getGenericResponse()}
+            new GenericResponse<?>[] {SingleQueryResponsesTest.getGenericResponse()}
         );
         Assertions.assertThat(response.next())
             .extracting("contents").isEqualTo("sample response");
@@ -62,7 +62,7 @@ final class ConfiguredResponseTest {
 
     @Test
     void shouldThrowAnExceptionThatIsSetAsAResponse() {
-        final ConfiguredResponse response = new ConfiguredResponse(
+        final SingleQueryResponses response = new SingleQueryResponses(
             "exception response",
             new GenericResponse<>(
                 new ArithmeticException("test exception"),
@@ -77,7 +77,7 @@ final class ConfiguredResponseTest {
 
     @Test
     void shouldReturnAllTheSpecifiedResponsesInOrder() {
-        final ConfiguredResponse response = new ConfiguredResponse(
+        final SingleQueryResponses response = new SingleQueryResponses(
             "multiple responses",
             new GenericResponse<>("response 1", 0, Map.of()),
             new GenericResponse<>(new ArithmeticException("test exception"), 0, Map.of())

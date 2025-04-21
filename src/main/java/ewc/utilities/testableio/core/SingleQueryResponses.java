@@ -30,11 +30,14 @@ import java.util.NoSuchElementException;
 import java.util.stream.Stream;
 
 /**
- * This class provides configured responses for all the I/O operations.
+ * This class provides configured responses for a single I/O opersation stub. The responses could
+ * be in a form of a single response or an array of responses. The single response will be returned
+ * forever, while the array of responses will be returned sequentially until it runs out of
+ * responses. In such case, a {@link NoSuchElementException} will be thrown.
  *
  * @since 0.1
  */
-public class ConfiguredResponse {
+public class SingleQueryResponses {
     /**
      * The iterator of configured responses. This iterator is used to provide
      * responses sequentially.
@@ -47,24 +50,43 @@ public class ConfiguredResponse {
      */
     private final String description;
 
-    public ConfiguredResponse(final String name, final GenericResponse<?> value) {
-        this(Stream.generate(() -> value).iterator(), name);
+    /**
+     * Single response constructor. It means that the same response will be returned forever.
+     *
+     * @param stub The short description of this stub instance.
+     * @param value The response to be returned forever.
+     */
+    public SingleQueryResponses(final String stub, final GenericResponse<?> value) {
+        this(Stream.generate(() -> value).iterator(), stub);
     }
 
-    public ConfiguredResponse(final String name, final GenericResponse<?>... values) {
-        this(Arrays.stream(values).iterator(), name);
+    /**
+     * Array of responses constructor. It means that the responses will be returned sequentially
+     * until the array runs out of responses.
+     *
+     * @param stub The short description of this stub instance.
+     * @param values The array of responses to be returned sequentially.
+     */
+    public SingleQueryResponses(final String stub, final GenericResponse<?>... values) {
+        this(Arrays.stream(values).iterator(), stub);
     }
 
-    private ConfiguredResponse(
-        final Iterator<? extends GenericResponse<?>> values, final String name
+    /**
+     * Primary constructor.
+     *
+     * @param values The iterator that returns configured responses sequentially.
+     * @param description The short description of this instance.
+     */
+    private SingleQueryResponses(
+        final Iterator<? extends GenericResponse<?>> values, final String description
     ) {
         this.values = values;
-        this.description = name;
+        this.description = description;
     }
 
     /**
      * Returns the next response in the iterator. If the iterator has no more
-     * responses, a NoSuchElementException will be thrown. If the response
+     * responses, a {@link NoSuchElementException} will be thrown. If the response
      * contains a RuntimeException, it will be thrown immediately.
      *
      * @return The next configured response.

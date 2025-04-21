@@ -57,14 +57,14 @@ final class ConfigurableResponsesTest {
         final ConfigurableResponses target = new ConfigurableResponses();
         target.setDefaultResponsesFor(
             "getHomePage",
-            new ConfiguredResponse(
+            new SingleQueryResponses(
                 "home",
                 new GenericResponse<>("Home page", 0, Map.of())
             )
         );
         target.setDefaultResponsesFor(
             "getItemRecommendations",
-            new ConfiguredResponse(
+            new SingleQueryResponses(
                 "recommendations",
                 new GenericResponse<>("Authorization page", 1000, Map.of())
             )
@@ -72,7 +72,7 @@ final class ConfigurableResponsesTest {
         target.setResponsesFor(
             "12345",
             "getItemRecommendations",
-            new ConfiguredResponse(
+            new SingleQueryResponses(
                 "recommendations",
                 new GenericResponse<>("Recommendations page", 0, Map.of())
             )

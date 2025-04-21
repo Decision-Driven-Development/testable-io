@@ -39,7 +39,7 @@ class ConfigurableResponses {
     /**
      * The storage for all the configured responses.
      */
-    private final Map<String, ConfiguredResponse> responses = new HashMap<>();
+    private final Map<String, SingleQueryResponses> responses = new HashMap<>();
 
     /**
      * Returns the next response for the given request.
@@ -65,12 +65,12 @@ class ConfigurableResponses {
         return response;
     }
 
-    public void setDefaultResponsesFor(final String query, final ConfiguredResponse response) {
+    public void setDefaultResponsesFor(final String query, final SingleQueryResponses response) {
         this.responses.put(query, response);
     }
 
     public void setResponsesFor(
-        final String client, final String query, final ConfiguredResponse response
+        final String client, final String query, final SingleQueryResponses response
     ) {
         this.responses.put(ConfigurableResponses.responseKeyFor(client, query), response);
     }
