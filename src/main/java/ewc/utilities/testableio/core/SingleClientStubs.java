@@ -30,30 +30,29 @@ import java.util.NoSuchElementException;
 import lombok.SneakyThrows;
 
 /**
- * This class provides configurable responses for HTTP-related utilities.
- * It is designed to be extended or modified to suit specific use cases.
+ * This class provides configurable responses for all the queries made by a single 'client'.
  *
  * @since 0.1
  */
-class ConfigurableResponses {
+class SingleClientStubs {
     /**
      * The storage for all the configured responses.
      */
     private final Map<String, SingleQueryResponses> responses = new HashMap<>();
 
     /**
-     * Returns the next response for the given request.
+     * Returns the next response for the given query.
      *
-     * @param request The request for which to get the next response.
+     * @param query The query for which to get the next response.
      * @return The next response object.
      */
     @SneakyThrows
-    public GenericResponse<?> nextResponseFor(final GenericRequest<?> request) {
+    public GenericResponse<?> nextResponseFor(final GenericRequest<?> query) {
         final String key;
-        if (this.responses.containsKey(ConfigurableResponses.responseKeyFor(request))) {
-            key = ConfigurableResponses.responseKeyFor(request);
+        if (this.responses.containsKey(SingleClientStubs.responseKeyFor(query))) {
+            key = SingleClientStubs.responseKeyFor(query);
         } else {
-            key = request.queryId();
+            key = query.queryId();
         }
         if (!this.responses.containsKey(key)) {
             throw new NoSuchElementException("No responses configured");
@@ -72,11 +71,11 @@ class ConfigurableResponses {
     public void setResponsesFor(
         final String client, final String query, final SingleQueryResponses response
     ) {
-        this.responses.put(ConfigurableResponses.responseKeyFor(client, query), response);
+        this.responses.put(SingleClientStubs.responseKeyFor(client, query), response);
     }
 
     private static String responseKeyFor(final GenericRequest<?> request) {
-        return ConfigurableResponses.responseKeyFor(request.clientId(), request.queryId());
+        return SingleClientStubs.responseKeyFor(request.clientId(), request.queryId());
     }
 
     private static String responseKeyFor(final String client, final String query) {

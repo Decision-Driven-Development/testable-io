@@ -24,10 +24,8 @@
 
 package ewc.utilities.testableio.core;
 
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.stream.Stream;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * This class provides configured responses for a single I/O opersation stub. The responses could
@@ -39,10 +37,14 @@ import java.util.stream.Stream;
  */
 public class SingleQueryResponses {
     /**
-     * The iterator of configured responses. This iterator is used to provide
-     * responses sequentially.
+     * The counter providing the index of the next response to be returned.
      */
-    private final Iterator<? extends GenericResponse<?>> values;
+    private final Counter index;
+
+    /**
+     * The array of responses to be returned sequentially.
+     */
+    private final GenericResponse<?>[] values;
 
     /**
      * The short description of this instance. Used primarily for identifying the
@@ -57,7 +59,7 @@ public class SingleQueryResponses {
      * @param value The response to be returned forever.
      */
     public SingleQueryResponses(final String stub, final GenericResponse<?> value) {
-        this(Stream.generate(() -> value).iterator(), stub);
+        this(stub, new GenericResponse<?>[]{value}, new ConstantIndex());
     }
 
     /**
@@ -68,20 +70,22 @@ public class SingleQueryResponses {
      * @param values The array of responses to be returned sequentially.
      */
     public SingleQueryResponses(final String stub, final GenericResponse<?>... values) {
-        this(Arrays.stream(values).iterator(), stub);
+        this(stub, values, new IncrementalIndex());
     }
 
     /**
      * Primary constructor.
      *
-     * @param values The iterator that returns configured responses sequentially.
-     * @param description The short description of this instance.
+     * @param stub The short description of this stub instance.
+     * @param values The array of responses to be returned sequentially.
+     * @param index The counter providing the index of the next response to be returned.
      */
     private SingleQueryResponses(
-        final Iterator<? extends GenericResponse<?>> values, final String description
+        final String stub, final GenericResponse<?>[] values, final Counter index
     ) {
+        this.index = index;
         this.values = values;
-        this.description = description;
+        this.description = stub;
     }
 
     /**
@@ -95,15 +99,79 @@ public class SingleQueryResponses {
         if (this.values == null) {
             throw new IllegalStateException("No response to send");
         }
-        if (!this.values.hasNext()) {
+        if (this.index.isTheLast(this.values.length)) {
             throw new NoSuchElementException(
                 String.format("No more configured responses for %s", this.description)
             );
         }
-        final GenericResponse<?> value = this.values.next();
+        final GenericResponse<?> value = this.values[this.index.getAndIncrement()];
         if (value.contents() instanceof RuntimeException runtimeException) {
             throw runtimeException;
         }
         return value;
+    }
+
+    /**
+     * The value of the counter. This value is used to determine the index of the response to
+     * be returned.
+     *
+     * @since 0.1
+     */
+    private interface Counter {
+        /**
+         * The value of the counter. This value is used to determine the index of the response to
+         * be returned.
+         *
+         * @return The current value of the counter.
+         */
+        int currentValue();
+
+        /**
+         * Increments the counter by one. This method is used to move to the next response in the
+         * array.
+         *
+         * @return The value of the counter before incrementing.
+         */
+        int getAndIncrement();
+
+        /**
+         * Checks if the current value of the counter is the last one in the array.
+         *
+         * @param size The size of the array of responses.
+         * @return True if the current value is the last one, false otherwise.
+         * @since 0.1
+         */
+        default boolean isTheLast(final int size) {
+            return this.currentValue() >= size;
+        }
+    }
+
+    private static final class ConstantIndex implements Counter {
+        @Override
+        public int currentValue() {
+            return 0;
+        }
+
+        @Override
+        public int getAndIncrement() {
+            return 0;
+        }
+    }
+
+    private static final class IncrementalIndex implements Counter {
+        /**
+         * The thread-safe counter providing the index of the next response to be returned.
+         */
+        private final AtomicInteger index = new AtomicInteger(0);
+
+        @Override
+        public int currentValue() {
+            return this.index.intValue();
+        }
+
+        @Override
+        public int getAndIncrement() {
+            return this.index.getAndIncrement();
+        }
     }
 }

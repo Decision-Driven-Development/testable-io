@@ -31,21 +31,21 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * This class provides unit tests for the {@link ConfigurableResponses} class.
+ * This class provides unit tests for the {@link SingleClientStubs} class.
  * It verifies the default values and behavior of the class.
  *
  * @since 0.1
  */
-final class ConfigurableResponsesTest {
+final class SingleClientStubsTest {
     @Test
     void couldBeInstantiated() {
-        final ConfigurableResponses target = new ConfigurableResponses();
+        final SingleClientStubs target = new SingleClientStubs();
         Assertions.assertThat(target).isNotNull();
     }
 
     @Test
     void throwsIfNoResponsesConfigured() {
-        final ConfigurableResponses target = new ConfigurableResponses();
+        final SingleClientStubs target = new SingleClientStubs();
         final GenericRequest<String> request = new MockRequest().assignedToClient();
         Assertions.assertThatExceptionOfType(NoSuchElementException.class)
             .isThrownBy(() -> target.nextResponseFor(request))
@@ -54,7 +54,7 @@ final class ConfigurableResponsesTest {
 
     @Test
     void returnsTheResponseThatCorrespondsToTheRequest() {
-        final ConfigurableResponses target = new ConfigurableResponses();
+        final SingleClientStubs target = new SingleClientStubs();
         target.setDefaultResponsesFor(
             "getHomePage",
             new SingleQueryResponses(
