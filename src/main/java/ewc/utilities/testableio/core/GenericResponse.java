@@ -31,8 +31,6 @@ import lombok.NonNull;
 /**
  * GenericResponse is a class that represents a response object with generic contents.
  *
- * @param <T> The type of the contents of the response. This can be any type of object, such as a
- *  string, JSON object, or any other data structure.
  * @param contents The contents of the response. This can be any type of object, such as a string,
  *  JSON object, or any other data structure.
  * @param delay The delay in milliseconds before the response is sent. This can be used to
@@ -43,8 +41,8 @@ import lombok.NonNull;
  *  response data itself.
  * @since 0.1
  */
-public record GenericResponse<T>(@NonNull T contents, int delay, Map<String, Object> metadata) {
-    public GenericResponse(final @NonNull T contents) {
+public record GenericResponse(@NonNull Object contents, int delay, Map<String, Object> metadata) {
+    public GenericResponse(final @NonNull Object contents) {
         this(contents, 0, Map.of());
     }
 
@@ -56,7 +54,7 @@ public record GenericResponse<T>(@NonNull T contents, int delay, Map<String, Obj
      * @param <R> The type of the transformed contents.
      * @return The transformed contents of the response.
      */
-    public <R> R contentsAs(final Function<GenericResponse<T>, R> transformer) {
+    public <R> R contentsAs(final Function<GenericResponse, R> transformer) {
         if (transformer == null) {
             throw new IllegalArgumentException("Transformer function cannot be null");
         }

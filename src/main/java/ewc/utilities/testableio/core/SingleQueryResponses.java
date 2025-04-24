@@ -28,7 +28,7 @@ import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * This class provides configured responses for a single I/O opersation stub. The responses could
+ * This class provides configured responses for a single I/O operation stub. The responses could
  * be in a form of a single response or an array of responses. The single response will be returned
  * forever, while the array of responses will be returned sequentially until it runs out of
  * responses. In such case, a {@link NoSuchElementException} will be thrown.
@@ -44,7 +44,7 @@ public class SingleQueryResponses {
     /**
      * The array of responses to be returned sequentially.
      */
-    private final GenericResponse<?>[] values;
+    private final GenericResponse[] values;
 
     /**
      * The short description of this instance. Used primarily for identifying the
@@ -58,8 +58,8 @@ public class SingleQueryResponses {
      * @param stub The short description of this stub instance.
      * @param value The response to be returned forever.
      */
-    public SingleQueryResponses(final String stub, final GenericResponse<?> value) {
-        this(stub, new GenericResponse<?>[]{value}, new ConstantIndex());
+    public SingleQueryResponses(final String stub, final GenericResponse value) {
+        this(stub, new GenericResponse[]{value}, new ConstantIndex());
     }
 
     /**
@@ -69,7 +69,7 @@ public class SingleQueryResponses {
      * @param stub The short description of this stub instance.
      * @param values The array of responses to be returned sequentially.
      */
-    public SingleQueryResponses(final String stub, final GenericResponse<?>... values) {
+    public SingleQueryResponses(final String stub, final GenericResponse... values) {
         this(stub, values, new IncrementalIndex());
     }
 
@@ -81,7 +81,7 @@ public class SingleQueryResponses {
      * @param index The counter providing the index of the next response to be returned.
      */
     private SingleQueryResponses(
-        final String stub, final GenericResponse<?>[] values, final Counter index
+        final String stub, final GenericResponse[] values, final Counter index
     ) {
         this.index = index;
         this.values = values;
@@ -95,7 +95,7 @@ public class SingleQueryResponses {
      *
      * @return The next configured response.
      */
-    public GenericResponse<?> next() {
+    public GenericResponse next() {
         if (this.values == null) {
             throw new IllegalStateException("No response to send");
         }
@@ -104,7 +104,7 @@ public class SingleQueryResponses {
                 String.format("No more configured responses for %s", this.description)
             );
         }
-        final GenericResponse<?> value = this.values[this.index.getAndIncrement()];
+        final GenericResponse value = this.values[this.index.getAndIncrement()];
         if (value.contents() instanceof RuntimeException runtimeException) {
             throw runtimeException;
         }

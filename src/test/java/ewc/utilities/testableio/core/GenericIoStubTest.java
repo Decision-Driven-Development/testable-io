@@ -49,14 +49,14 @@ final class GenericIoStubTest {
     /**
      * The response for the default (unspecified) client.
      */
-    private static final GenericResponse<String> DEFAULT_RESPONSE =
-        new GenericResponse<>("test default");
+    private static final GenericResponse DEFAULT_RESPONSE =
+        new GenericResponse("test default");
 
     /**
      * The response for the specific client.
      */
-    private static final GenericResponse<String> SPECIFIC_RESPONSE =
-        new GenericResponse<>("client-specific response");
+    private static final GenericResponse SPECIFIC_RESPONSE =
+        new GenericResponse("client-specific response");
 
     @Test
     void createDefaultStub() {

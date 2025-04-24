@@ -51,7 +51,7 @@ final class SingleQueryResponsesTest {
     void shouldReturnJustOneResponseIfItIsAnArrayWithOneElement() {
         final SingleQueryResponses response = new SingleQueryResponses(
             "array with one element",
-            new GenericResponse<?>[] {SingleQueryResponsesTest.getGenericResponse()}
+            new GenericResponse[] {SingleQueryResponsesTest.getGenericResponse()}
         );
         Assertions.assertThat(response.next())
             .extracting("contents").isEqualTo("sample response");
@@ -64,7 +64,7 @@ final class SingleQueryResponsesTest {
     void shouldThrowAnExceptionThatIsSetAsAResponse() {
         final SingleQueryResponses response = new SingleQueryResponses(
             "exception response",
-            new GenericResponse<>(
+            new GenericResponse(
                 new ArithmeticException("test exception"),
                 1000,
                 Map.of("http_response_code", 200, "x-header", "12345")
@@ -79,8 +79,8 @@ final class SingleQueryResponsesTest {
     void shouldReturnAllTheSpecifiedResponsesInOrder() {
         final SingleQueryResponses response = new SingleQueryResponses(
             "multiple responses",
-            new GenericResponse<>("response 1", 0, Map.of()),
-            new GenericResponse<>(new ArithmeticException("test exception"), 0, Map.of())
+            new GenericResponse("response 1", 0, Map.of()),
+            new GenericResponse(new ArithmeticException("test exception"), 0, Map.of())
         );
         Assertions.assertThat(response.next())
             .extracting("contents").isEqualTo("response 1");
@@ -92,8 +92,8 @@ final class SingleQueryResponsesTest {
             .hasMessageContaining("No more configured responses for multiple responses");
     }
 
-    private static GenericResponse<String> getGenericResponse() {
-        return new GenericResponse<>(
+    private static GenericResponse getGenericResponse() {
+        return new GenericResponse(
             "sample response",
             1000,
             Map.of("http_response_code", 200, "x-header", "12345")

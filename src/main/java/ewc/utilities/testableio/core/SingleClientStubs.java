@@ -47,23 +47,23 @@ class SingleClientStubs {
      * @return The next response object.
      */
     @SneakyThrows
-    public GenericResponse<?> nextResponseFor(final GenericRequest query) {
+    public GenericResponse nextResponseFor(final GenericRequest query) {
         final String key = query.queryId();
         if (!this.stubs.containsKey(key)) {
             throw new NoSuchElementException("No responses configured");
         }
-        final GenericResponse<?> response = this.stubs.get(key).next();
+        final GenericResponse response = this.stubs.get(key).next();
         if (response.delay() > 0) {
             Thread.sleep(response.delay());
         }
         return response;
     }
 
-    public void setSingleResponseFor(final String query, final GenericResponse<?> response) {
+    public void setSingleResponseFor(final String query, final GenericResponse response) {
         this.stubs.put(query, new SingleQueryResponses(query, response));
     }
 
-    public void setMultipleResponsesFor(final String query, final GenericResponse<?>... responses) {
+    public void setMultipleResponsesFor(final String query, final GenericResponse... responses) {
         this.stubs.put(query, new SingleQueryResponses(query, responses));
     }
 }

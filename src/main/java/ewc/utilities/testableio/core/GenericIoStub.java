@@ -49,7 +49,7 @@ public class GenericIoStub {
      * @param query The query for which to get the next response.
      * @return The next response object.
      */
-    public GenericResponse<?> nextResponseFor(final GenericRequest query) {
+    public GenericResponse nextResponseFor(final GenericRequest query) {
         return this.stubs
             .getOrDefault(query.clientId(), this.common)
             .nextResponseFor(query);
@@ -61,7 +61,7 @@ public class GenericIoStub {
      * @param query The query ID for which to add the stub.
      * @param response The stub response to be returned for the specified query.
      */
-    public void addDefaultStub(final String query, final GenericResponse<?> response) {
+    public void addDefaultStub(final String query, final GenericResponse response) {
         this.common.setSingleResponseFor(query, response);
     }
 
@@ -73,7 +73,7 @@ public class GenericIoStub {
      * @param response The stub response to be returned for the specified query.
      */
     public void addStubForClient(
-        final String client, final String query, final GenericResponse<?> response
+        final String client, final String query, final GenericResponse response
     ) {
         this.stubs.putIfAbsent(client, new SingleClientStubs());
         this.stubs.get(client).setSingleResponseFor(query, response);

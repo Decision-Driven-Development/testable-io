@@ -36,23 +36,23 @@ import org.junit.jupiter.api.Test;
 final class GenericResponseTest {
     @Test
     void shouldInstantiate() {
-        final GenericResponse<String> target = GenericResponseTest.getGenericResponse();
+        final GenericResponse target = GenericResponseTest.getGenericResponse();
         Assertions.assertThat(target).isNotNull();
     }
 
     @Test
     void shouldBeConvertedToString() {
-        final GenericResponse<String> target = GenericResponseTest.getGenericResponse();
-        final String result = target.contentsAs(GenericResponse::contents);
+        final GenericResponse target = GenericResponseTest.getGenericResponse();
+        final String result = target.contentsAs(r -> r.contents().toString());
         Assertions.assertThat(result).isEqualTo("test");
     }
 
     @Test
     void shouldBeConvertedToAnyClass() {
-        final GenericResponse<String> target = GenericResponseTest.getGenericResponse();
+        final GenericResponse target = GenericResponseTest.getGenericResponse();
         final HttpResponseSample result = target.contentsAs(
             response -> new HttpResponseSample(
-                response.contents(),
+                response.contents().toString(),
                 (Integer) response.metadata().get("http_response_code"),
                 (String) response.metadata().get("x-header")
             )
@@ -61,8 +61,8 @@ final class GenericResponseTest {
             .isEqualTo(new HttpResponseSample("test", 200, "12345"));
     }
 
-    private static GenericResponse<String> getGenericResponse() {
-        return new GenericResponse<>(
+    private static GenericResponse getGenericResponse() {
+        return new GenericResponse(
             "test",
             1000,
             Map.of("http_response_code", 200, "x-header", "12345")
