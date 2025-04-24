@@ -2,6 +2,14 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.1.1](https://github.com/Decision-Driven-Development/testable-io/compare/v0.1.0...v0.1.1) (2025-04-24)
+
+
+### Features
+
+* got rid of generic in GenericRequest ([406d309](https://github.com/Decision-Driven-Development/testable-io/commit/406d309510719865ccc174c8815f9d1ddbb6a641))
+* got rid of generic in GenericResponse ([a90b06f](https://github.com/Decision-Driven-Development/testable-io/commit/a90b06fbf450db2513428ab5e203d7f1c5b007b7))
+
 ## 0.1.0 (2025-04-21)
 
 
