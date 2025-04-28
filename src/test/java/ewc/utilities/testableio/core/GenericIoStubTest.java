@@ -42,41 +42,65 @@ final class GenericIoStubTest {
     @Test
     void createDefaultStub() {
         final GenericIoStub target = new GenericIoStub();
-        target.addCommonResponse(Response.TEST_RESPONSE);
-        Assertions.assertThat(target.nextResponseFor(GenericRequest.ANY_CLIENT))
-            .isEqualTo(GenericResponse.TEST_DEFAULT);
-        Assertions.assertThat(target.nextResponseFor(GenericRequest.SPECIFIC_CLIENT))
-            .isEqualTo(GenericResponse.TEST_DEFAULT);
+        target.addCommonResponse(Response.TEST);
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_ANY_CLIENT))
+            .isEqualTo(GenericResponse.TEST);
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_SPEC_CLIENT))
+            .isEqualTo(GenericResponse.TEST);
     }
 
     @Test
     void createInfiniteStubForSpecificClient() {
         final GenericIoStub target = new GenericIoStub();
-        target.addCommonResponse(Response.TEST_RESPONSE);
+        target.addCommonResponse(Response.TEST);
         target.addClientResponse(
-            Response.EMPTY_RESPONSE,
-            GenericRequest.SPECIFIC_CLIENT.clientId()
+            Response.EMPTY,
+            GenericRequest.FOR_SPEC_CLIENT.clientId()
         );
-        Assertions.assertThat(target.nextResponseFor(GenericRequest.ANY_CLIENT))
-            .isEqualTo(GenericResponse.TEST_DEFAULT);
-        Assertions.assertThat(target.nextResponseFor(GenericRequest.SPECIFIC_CLIENT))
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_ANY_CLIENT))
+            .isEqualTo(GenericResponse.TEST);
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_SPEC_CLIENT))
             .isEqualTo(GenericResponse.EMPTY);
     }
 
     @Test
     void shouldAddResponseToStoredResponses() {
         final GenericIoStub target = new GenericIoStub();
-        target.addCommonResponse(Response.TEST_RESPONSE);
+        target.addCommonResponse(Response.TEST);
         target.addClientResponse(
-            Response.forQueryId(GenericIoStubTest.QUERY)
-                .withContents(GenericResponse.EMPTY)
-                .withResponseId("client-specific response")
-                .build(),
-            GenericRequest.SPECIFIC_CLIENT.clientId()
+            Response.EMPTY,
+            GenericRequest.FOR_SPEC_CLIENT.clientId()
         );
         final Set<Response> responses = target.getResponsesFor(GenericIoStubTest.QUERY);
         Assertions.assertThat(responses.stream().map(Response::name).toList())
             .isNotEmpty()
-            .containsExactlyInAnyOrder("test_response", "client-specific response");
+            .containsExactlyInAnyOrder("test_response", "empty_response");
+    }
+
+    @Test
+    void shouldActivateOneOfStoredResponses() {
+        final GenericIoStub target = new GenericIoStub();
+        target.addCommonResponse(Response.TEST);
+        target.addClientResponse(Response.EMPTY, GenericRequest.FOR_SPEC_CLIENT.clientId());
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_SPEC_CLIENT))
+            .isEqualTo(GenericResponse.EMPTY);
+        target.setActiveResponse(
+            GenericRequest.FOR_SPEC_CLIENT.clientId(),
+            Response.TEST
+        );
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_SPEC_CLIENT))
+            .isEqualTo(GenericResponse.TEST);
+    }
+
+    @Test
+    void shouldActivateStoredResponseForNewClient() {
+        final GenericIoStub target = new GenericIoStub();
+        target.addCommonResponse(Response.TEST);
+        target.addClientResponse(Response.EMPTY, GenericRequest.FOR_SPEC_CLIENT.clientId());
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_NEW_CLIENT))
+            .isEqualTo(GenericResponse.TEST);
+        target.setActiveResponse(GenericRequest.FOR_NEW_CLIENT.clientId(), Response.EMPTY);
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_NEW_CLIENT))
+            .isEqualTo(GenericResponse.EMPTY);
     }
 }

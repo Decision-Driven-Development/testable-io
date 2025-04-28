@@ -38,16 +38,16 @@ public record Response(String query, String name, GenericResponse response) {
     /**
      * The testing instance of the stub.
      */
-    static final Response TEST_RESPONSE = Response
+    static final Response TEST = Response
         .forQueryId("test_request")
-        .withContents(GenericResponse.TEST_DEFAULT)
+        .withContents(GenericResponse.TEST)
         .withResponseId("test_response")
         .build();
 
     /**
      * Another testing instance of the response.
      */
-    static final Response EMPTY_RESPONSE = Response
+    static final Response EMPTY = Response
         .forQueryId("test_request")
         .withContents(GenericResponse.EMPTY)
         .withResponseId("empty_response")

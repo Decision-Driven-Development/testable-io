@@ -65,6 +65,7 @@ public class GenericIoStub {
 
     /**
      * Adds a common response for all clients.
+     *
      * @param response The response to be added.
      */
     public void addCommonResponse(final Response response) {
@@ -73,6 +74,7 @@ public class GenericIoStub {
 
     /**
      * Adds a response for a specific client.
+     *
      * @param response The response to be added.
      * @param client The client ID for which the response is to be added.
      */
@@ -94,14 +96,28 @@ public class GenericIoStub {
     }
 
     /**
+     * Sets the active response for a specific client.
+     *
+     * @param client The client ID for which the response is to be set.
+     * @param response The response to be set as active.
+     */
+    public void setActiveResponse(final ClientId client, final Response response) {
+        this.getStubsFor(client).setSingleResponseFor(response.query(), response.response());
+    }
+
+    /**
      * Adds a stub to the internal stub storage.
+     *
      * @param response The stub to be added.
      * @param client The client ID for which the stub is to be added.
      */
     private void addStub(final Response response, final ClientId client) {
         this.responses.add(response);
-        this.stubs.putIfAbsent(client, new SingleClientStubs());
-        this.stubs.get(client).setSingleResponseFor(response.query(), response.response());
+        this.getStubsFor(client).setSingleResponseFor(response.query(), response.response());
     }
 
+    private SingleClientStubs getStubsFor(final ClientId client) {
+        this.stubs.putIfAbsent(client, new SingleClientStubs());
+        return this.stubs.get(client);
+    }
 }

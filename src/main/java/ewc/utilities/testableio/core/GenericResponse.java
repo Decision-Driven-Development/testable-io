@@ -46,7 +46,7 @@ public record GenericResponse(@NonNull Object contents, int delay, Map<String, O
      * A test response object that can be used for testing purposes. It contains an empty map of
      * metadata, a delay of 0 milliseconds and a simple string as the contents.
      */
-    static final GenericResponse TEST_DEFAULT = new GenericResponse("test default");
+    static final GenericResponse TEST = new GenericResponse("test default");
 
     /**
      * The response for the specific client.

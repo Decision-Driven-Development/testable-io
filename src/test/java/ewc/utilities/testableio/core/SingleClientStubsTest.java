@@ -45,7 +45,7 @@ final class SingleClientStubsTest {
     @Test
     void throwsIfNoResponsesConfigured() {
         final SingleClientStubs target = new SingleClientStubs();
-        final GenericRequest request = GenericRequest.SPECIFIC_CLIENT;
+        final GenericRequest request = GenericRequest.FOR_SPEC_CLIENT;
         Assertions.assertThatExceptionOfType(NoSuchElementException.class)
             .isThrownBy(() -> target.nextResponseFor(request))
             .withMessage("No responses configured");
@@ -60,11 +60,11 @@ final class SingleClientStubsTest {
         target.setSingleResponseFor(
             "test_request", new GenericResponse("Recommendations page", 1000, Map.of())
         );
-        Assertions.assertThat(target.nextResponseFor(GenericRequest.ANY_CLIENT))
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_ANY_CLIENT))
             .isNotNull()
             .extracting("contents").isEqualTo("Recommendations page");
         final long now = System.currentTimeMillis();
-        Assertions.assertThat(target.nextResponseFor(GenericRequest.SPECIFIC_CLIENT))
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_SPEC_CLIENT))
             .isNotNull()
             .extracting("contents").isEqualTo("Recommendations page");
         Assertions.assertThat(System.currentTimeMillis() - now)

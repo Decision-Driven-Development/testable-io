@@ -35,14 +35,14 @@ import org.junit.jupiter.api.Test;
 final class GenericRequestTest {
     @Test
     void shouldExtractClientId() {
-        final GenericRequest target = GenericRequest.SPECIFIC_CLIENT;
+        final GenericRequest target = GenericRequest.FOR_SPEC_CLIENT;
         Assertions.assertThat(target.clientId())
             .isEqualTo(new ClientId("12345"));
     }
 
     @Test
     void shouldExtractQueryId() {
-        final GenericRequest target = GenericRequest.SPECIFIC_CLIENT;
+        final GenericRequest target = GenericRequest.FOR_SPEC_CLIENT;
         Assertions.assertThat(target.queryId())
             .isEqualTo(new QueryId("test_request"));
     }
