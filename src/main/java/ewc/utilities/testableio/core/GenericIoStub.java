@@ -68,15 +68,15 @@ public class GenericIoStub {
     /**
      * Adds a stub for a specific client.
      *
-     * @param client The client ID for which to add the stub.
+     * @param clientname The client ID for which to add the stub.
      * @param query The query ID for which to add the stub.
      * @param response The stub response to be returned for the specified query.
      */
     public void addStubForClient(
-        final String client, final String query, final GenericResponse response
+        final String clientname, final String query, final GenericResponse response
     ) {
-        final ClientId clientId = new ClientId(client);
-        this.stubs.putIfAbsent(clientId, new SingleClientStubs());
-        this.stubs.get(clientId).setSingleResponseFor(query, response);
+        final ClientId client = new ClientId(clientname);
+        this.stubs.putIfAbsent(client, new SingleClientStubs());
+        this.stubs.get(client).setSingleResponseFor(query, response);
     }
 }
