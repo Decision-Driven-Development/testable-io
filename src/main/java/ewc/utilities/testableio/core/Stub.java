@@ -31,18 +31,36 @@ package ewc.utilities.testableio.core;
  * @param query The ID of the query to be stubbed.
  * @param name The ID of the response.
  * @param response The response to be returned by the stub.
+ *
  * @since 0.2
  */
 public record Stub(String client, String query, String name, GenericResponse response) {
+    /**
+     * The testing instance of the stub.
+     */
+    static final Stub COMMON_TEST = forQuery("getItemRecommendations")
+        .withContents(GenericResponse.TEST_RESPONSE)
+        .buildForAllClients();
+
     @SuppressWarnings("PMD.ProhibitPublicStaticMethod")
     public static QueryStubBuilder forQuery(final String query) {
         return new ConcreteQueryStubBuilder(query);
     }
 
+    /**
+     * Interface for building a stub for a specific query ID.
+     *
+     * @since 0.2
+     */
     public interface QueryStubBuilder {
         StubBuilder withContents(GenericResponse response);
     }
 
+    /**
+     * Interface for building a stub for a specific client or a common stub.
+     *
+     * @since 0.2
+     */
     public interface StubBuilder {
         StubBuilder withName(String name);
 
@@ -120,7 +138,7 @@ public record Stub(String client, String query, String name, GenericResponse res
             if (this.name == null) {
                 this.name = "common::%s".formatted(this.query);
             }
-            return new Stub(null, this.query, this.name, this.response);
+            return new Stub("common", this.query, this.name, this.response);
         }
     }
 }

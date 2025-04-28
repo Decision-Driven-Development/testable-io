@@ -55,7 +55,7 @@ final class GenericIoStubTest {
     @Test
     void createDefaultStub() {
         final GenericIoStub target = new GenericIoStub();
-        target.addDefaultStub("getItemRecommendations", GenericResponse.TEST_RESPONSE);
+        target.addStub(Stub.COMMON_TEST);
         Assertions.assertThat(target.nextResponseFor(GenericIoStubTest.ANY_CLIENT))
             .isEqualTo(GenericResponse.TEST_RESPONSE);
         Assertions.assertThat(target.nextResponseFor(GenericIoStubTest.SPECIFIC_CLIENT))
@@ -65,11 +65,12 @@ final class GenericIoStubTest {
     @Test
     void createInfiniteStubForSpecificClient() {
         final GenericIoStub target = new GenericIoStub();
-        target.addDefaultStub("getItemRecommendations", GenericResponse.TEST_RESPONSE);
-        target.addStubForClient(
-            "12345",
-            "getItemRecommendations",
-            GenericIoStubTest.SPECIFIC_RESPONSE
+        target.addStub(Stub.COMMON_TEST);
+        target.addStub(
+            Stub.forQuery("getItemRecommendations")
+                .withContents(GenericIoStubTest.SPECIFIC_RESPONSE)
+                .withName("client-specific response")
+                .buildForSpecificClient("12345")
         );
         Assertions.assertThat(target.nextResponseFor(GenericIoStubTest.ANY_CLIENT))
             .isEqualTo(GenericResponse.TEST_RESPONSE);

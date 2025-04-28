@@ -34,9 +34,9 @@ import java.util.Map;
  */
 public class GenericIoStub {
     /**
-     * The default stubs for all clients.
+     * Client ID for all the clients (i.e. when no specific client is set for the stub).
      */
-    private final SingleClientStubs common = new SingleClientStubs();
+    private static final ClientId COMMON_CLIENT = new ClientId("common");
 
     /**
      * The stubs for each client.
@@ -51,32 +51,17 @@ public class GenericIoStub {
      */
     public GenericResponse nextResponseFor(final GenericRequest query) {
         return this.stubs
-            .getOrDefault(query.clientId(), this.common)
+            .getOrDefault(query.clientId(), this.stubs.get(GenericIoStub.COMMON_CLIENT))
             .nextResponseFor(query);
     }
 
     /**
-     * Adds a default stub for all clients.
-     *
-     * @param query The query ID for which to add the stub.
-     * @param response The stub response to be returned for the specified query.
+     * Adds a stub to the internal stub storage.
+     * @param stub The stub to be added.
      */
-    public void addDefaultStub(final String query, final GenericResponse response) {
-        this.common.setSingleResponseFor(query, response);
-    }
-
-    /**
-     * Adds a stub for a specific client.
-     *
-     * @param clientname The client ID for which to add the stub.
-     * @param query The query ID for which to add the stub.
-     * @param response The stub response to be returned for the specified query.
-     */
-    public void addStubForClient(
-        final String clientname, final String query, final GenericResponse response
-    ) {
-        final ClientId client = new ClientId(clientname);
-        this.stubs.putIfAbsent(client, new SingleClientStubs());
-        this.stubs.get(client).setSingleResponseFor(query, response);
+    public void addStub(final Stub stub) {
+        final ClientId key = new ClientId(stub.client());
+        this.stubs.putIfAbsent(key, new SingleClientStubs());
+        this.stubs.get(key).setSingleResponseFor(stub.query(), stub.response());
     }
 }

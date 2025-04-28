@@ -47,7 +47,7 @@ final class StubBuilderTest {
         Assertions.assertThat(common)
             .isEqualTo(
                 new Stub(
-                    null,
+                    "common",
                     StubBuilderTest.QUERY,
                     "common::recommendationIds",
                     GenericResponse.TEST_RESPONSE
