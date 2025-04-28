@@ -55,10 +55,10 @@ final class SingleClientStubsTest {
     void returnsTheResponseThatCorrespondsToTheRequest() {
         final SingleClientStubs target = new SingleClientStubs();
         target.setSingleResponseFor(
-            "getHomePage", new GenericResponse("Home page", 0, Map.of())
+            new QueryId("getHomePage"), new GenericResponse("Home page", 0, Map.of())
         );
         target.setSingleResponseFor(
-            "test_request", new GenericResponse("Recommendations page", 1000, Map.of())
+            new QueryId("test_request"), new GenericResponse("Recommendations page", 1000, Map.of())
         );
         Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_ANY_CLIENT))
             .isNotNull()

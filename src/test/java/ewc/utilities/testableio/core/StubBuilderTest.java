@@ -36,19 +36,24 @@ final class StubBuilderTest {
     /**
      * The query ID for the stub tests.
      */
-    private static final String QUERY = "recommendationIds";
+    private static final QueryId QUERY = new QueryId("recommendationIds");
+
+    /**
+     * The response ID for the stub tests.
+     */
+    private static final ResponseId RESPONSE = new ResponseId("recommendationIds");
 
     @Test
     void shouldBuildACommonStub() {
         final Response common = Response
-            .forQueryId(StubBuilderTest.QUERY)
+            .forQueryId(StubBuilderTest.QUERY.query())
             .withContents(GenericResponse.TEST)
             .build();
         Assertions.assertThat(common)
             .isEqualTo(
                 new Response(
                     StubBuilderTest.QUERY,
-                    StubBuilderTest.QUERY,
+                    StubBuilderTest.RESPONSE,
                     GenericResponse.TEST
                 )
             );
@@ -57,7 +62,7 @@ final class StubBuilderTest {
     @Test
     void shouldBuildWithSpecificName() {
         final Response specific = Response
-            .forQueryId(StubBuilderTest.QUERY)
+            .forQueryId(StubBuilderTest.QUERY.query())
             .withContents(GenericResponse.TEST)
             .withResponseId("myStub")
             .build();
@@ -65,7 +70,7 @@ final class StubBuilderTest {
             .isEqualTo(
                 new Response(
                     StubBuilderTest.QUERY,
-                    "myStub",
+                    new ResponseId("myStub"),
                     GenericResponse.TEST
                 )
             );

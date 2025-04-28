@@ -59,8 +59,8 @@ class SingleClientStubs {
         return response;
     }
 
-    public void setSingleResponseFor(final String query, final GenericResponse response) {
-        this.stubs.put(new QueryId(query), new SingleQueryResponses(query, response));
+    public void setSingleResponseFor(final QueryId query, final GenericResponse response) {
+        this.stubs.put(query, new SingleQueryResponses(query.query(), response));
     }
 
     public void setMultipleResponsesFor(final String query, final GenericResponse... responses) {

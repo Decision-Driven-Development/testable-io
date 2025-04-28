@@ -91,8 +91,28 @@ public class GenericIoStub {
     public Set<Response> getResponsesFor(final String query) {
         return this.responses
             .stream()
-            .filter(response -> response.query().equals(query))
+            .filter(response -> response.query().equals(new QueryId(query)))
             .collect(Collectors.toSet());
+    }
+
+    /**
+     * Sets the active response for a specific client.
+     *
+     * @param client Client ID for which the response is to be set.
+     * @param query Query ID for which the response is to be set.
+     * @param response Response ID for the response to be set as active.
+     */
+    public void setActiveResponse(
+        final ClientId client, final QueryId query, final ResponseId response
+    ) {
+        this.responses.stream().filter(resp -> resp.query().equals(query))
+            .filter(resp -> resp.name().equals(response))
+            .findFirst()
+            .ifPresentOrElse(
+                resp -> this.setActiveResponse(client, resp),
+                () -> {
+                    throw new IllegalArgumentException("No such response");
+                });
     }
 
     /**
@@ -101,7 +121,7 @@ public class GenericIoStub {
      * @param client The client ID for which the response is to be set.
      * @param response The response to be set as active.
      */
-    public void setActiveResponse(final ClientId client, final Response response) {
+    private void setActiveResponse(final ClientId client, final Response response) {
         this.getStubsFor(client).setSingleResponseFor(response.query(), response.response());
     }
 

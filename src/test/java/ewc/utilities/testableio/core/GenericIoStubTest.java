@@ -74,7 +74,10 @@ final class GenericIoStubTest {
         final Set<Response> responses = target.getResponsesFor(GenericIoStubTest.QUERY);
         Assertions.assertThat(responses.stream().map(Response::name).toList())
             .isNotEmpty()
-            .containsExactlyInAnyOrder("test_response", "empty_response");
+            .containsExactlyInAnyOrder(
+                new ResponseId("test_response"),
+                new ResponseId("empty_response")
+            );
     }
 
     @Test
@@ -86,7 +89,8 @@ final class GenericIoStubTest {
             .isEqualTo(GenericResponse.EMPTY);
         target.setActiveResponse(
             GenericRequest.FOR_SPEC_CLIENT.clientId(),
-            Response.TEST
+            Response.TEST.query(),
+            Response.TEST.name()
         );
         Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_SPEC_CLIENT))
             .isEqualTo(GenericResponse.TEST);
@@ -99,7 +103,11 @@ final class GenericIoStubTest {
         target.addClientResponse(Response.EMPTY, GenericRequest.FOR_SPEC_CLIENT.clientId());
         Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_NEW_CLIENT))
             .isEqualTo(GenericResponse.TEST);
-        target.setActiveResponse(GenericRequest.FOR_NEW_CLIENT.clientId(), Response.EMPTY);
+        target.setActiveResponse(
+            GenericRequest.FOR_NEW_CLIENT.clientId(),
+            Response.EMPTY.query(),
+            Response.EMPTY.name()
+        );
         Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_NEW_CLIENT))
             .isEqualTo(GenericResponse.EMPTY);
     }

@@ -34,7 +34,7 @@ import java.util.Objects;
  * @param response The response to be returned by the stub.
  * @since 0.2
  */
-public record Response(String query, String name, GenericResponse response) {
+public record Response(QueryId query, ResponseId name, GenericResponse response) {
     /**
      * The testing instance of the stub.
      */
@@ -155,7 +155,7 @@ public record Response(String query, String name, GenericResponse response) {
             if (this.name == null) {
                 this.name = this.query;
             }
-            return new Response(this.query, this.name, this.response);
+            return new Response(new QueryId(this.query), new ResponseId(this.name), this.response);
         }
     }
 
