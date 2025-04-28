@@ -47,12 +47,6 @@ final class GenericIoStubTest {
         new MockRequest().assignedToClient();
 
     /**
-     * The response for the default (unspecified) client.
-     */
-    private static final GenericResponse DEFAULT_RESPONSE =
-        new GenericResponse("test default");
-
-    /**
      * The response for the specific client.
      */
     private static final GenericResponse SPECIFIC_RESPONSE =
@@ -61,24 +55,24 @@ final class GenericIoStubTest {
     @Test
     void createDefaultStub() {
         final GenericIoStub target = new GenericIoStub();
-        target.addDefaultStub("getItemRecommendations", GenericIoStubTest.DEFAULT_RESPONSE);
+        target.addDefaultStub("getItemRecommendations", GenericResponse.TEST_RESPONSE);
         Assertions.assertThat(target.nextResponseFor(GenericIoStubTest.ANY_CLIENT))
-            .isEqualTo(GenericIoStubTest.DEFAULT_RESPONSE);
+            .isEqualTo(GenericResponse.TEST_RESPONSE);
         Assertions.assertThat(target.nextResponseFor(GenericIoStubTest.SPECIFIC_CLIENT))
-            .isEqualTo(GenericIoStubTest.DEFAULT_RESPONSE);
+            .isEqualTo(GenericResponse.TEST_RESPONSE);
     }
 
     @Test
     void createInfiniteStubForSpecificClient() {
         final GenericIoStub target = new GenericIoStub();
-        target.addDefaultStub("getItemRecommendations", GenericIoStubTest.DEFAULT_RESPONSE);
+        target.addDefaultStub("getItemRecommendations", GenericResponse.TEST_RESPONSE);
         target.addStubForClient(
             "12345",
             "getItemRecommendations",
             GenericIoStubTest.SPECIFIC_RESPONSE
         );
         Assertions.assertThat(target.nextResponseFor(GenericIoStubTest.ANY_CLIENT))
-            .isEqualTo(GenericIoStubTest.DEFAULT_RESPONSE);
+            .isEqualTo(GenericResponse.TEST_RESPONSE);
         Assertions.assertThat(target.nextResponseFor(GenericIoStubTest.SPECIFIC_CLIENT))
             .isEqualTo(GenericIoStubTest.SPECIFIC_RESPONSE);
     }

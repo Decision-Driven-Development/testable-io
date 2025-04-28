@@ -33,27 +33,60 @@ import org.junit.jupiter.api.Test;
  * @since 0.2
  */
 final class StubBuilderTest {
+    /**
+     * The query ID for the stub tests.
+     */
+    private static final String QUERY = "recommendationIds";
+
     @Test
     void shouldBuildACommonStub() {
         final Stub common = Stub
-            .forQuery("recommendationIds")
-            .withContents("hello, world")
+            .forQuery(StubBuilderTest.QUERY)
+            .withContents(GenericResponse.TEST_RESPONSE)
             .buildForAllClients();
         Assertions.assertThat(common)
-            .isInstanceOf(Stub.class)
-            .extracting("client", "query", "response")
-            .containsExactly(null, "recommendationIds", "hello, world");
+            .isEqualTo(
+                new Stub(
+                    null,
+                    StubBuilderTest.QUERY,
+                    "common::recommendationIds",
+                    GenericResponse.TEST_RESPONSE
+                )
+            );
     }
 
     @Test
     void shouldBuildSpecificClientStub() {
         final Stub specific = Stub
-            .forQuery("recommendationIds")
-            .withContents("hello, world")
+            .forQuery(StubBuilderTest.QUERY)
+            .withContents(GenericResponse.TEST_RESPONSE)
             .buildForSpecificClient("client1");
         Assertions.assertThat(specific)
-            .isInstanceOf(Stub.class)
-            .extracting("client", "query", "response")
-            .containsExactly("client1", "recommendationIds", "hello, world");
+            .isEqualTo(
+                new Stub(
+                    "client1",
+                    StubBuilderTest.QUERY,
+                    "client1::recommendationIds",
+                    GenericResponse.TEST_RESPONSE
+                )
+            );
+    }
+
+    @Test
+    void shouldBuildWithSpecificName() {
+        final Stub specific = Stub
+            .forQuery(StubBuilderTest.QUERY)
+            .withContents(GenericResponse.TEST_RESPONSE)
+            .withName("myStub")
+            .buildForSpecificClient("client1");
+        Assertions.assertThat(specific)
+            .isEqualTo(
+                new Stub(
+                    "client1",
+                    StubBuilderTest.QUERY,
+                    "myStub",
+                    GenericResponse.TEST_RESPONSE
+                )
+            );
     }
 }

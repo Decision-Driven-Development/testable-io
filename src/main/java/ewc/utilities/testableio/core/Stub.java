@@ -29,24 +29,27 @@ package ewc.utilities.testableio.core;
  *
  * @param client The optional client ID for which the stub is valid.
  * @param query The ID of the query to be stubbed.
+ * @param name The ID of the response.
  * @param response The response to be returned by the stub.
  * @since 0.2
  */
-public record Stub(String client, String query, String response) {
-
+public record Stub(String client, String query, String name, GenericResponse response) {
     @SuppressWarnings("PMD.ProhibitPublicStaticMethod")
     public static QueryStubBuilder forQuery(final String query) {
         return new ConcreteQueryStubBuilder(query);
     }
 
     public interface QueryStubBuilder {
-        StubBuilder withContents(String response);
+        StubBuilder withContents(GenericResponse response);
     }
 
     public interface StubBuilder {
+        StubBuilder withName(String name);
+
         Stub buildForSpecificClient(String client);
 
         Stub buildForAllClients();
+
     }
 
     /**
@@ -66,7 +69,7 @@ public record Stub(String client, String query, String response) {
         }
 
         @Override
-        public StubBuilder withContents(final String response) {
+        public StubBuilder withContents(final GenericResponse response) {
             return new ConcreteStubBuilder(this.query, response);
         }
     }
@@ -86,21 +89,38 @@ public record Stub(String client, String query, String response) {
         /**
          * The response to be returned by the stub.
          */
-        private final String response;
+        private final GenericResponse response;
 
-        ConcreteStubBuilder(final String query, final String response) {
+        /**
+         * The name of the response.
+         */
+        private String name;
+
+        ConcreteStubBuilder(final String query, final GenericResponse response) {
             this.query = query;
             this.response = response;
         }
 
         @Override
+        public StubBuilder withName(final String identifier) {
+            this.name = identifier;
+            return this;
+        }
+
+        @Override
         public Stub buildForSpecificClient(final String client) {
-            return new Stub(client, this.query, this.response);
+            if (this.name == null) {
+                this.name = "%s::%s".formatted(client, this.query);
+            }
+            return new Stub(client, this.query, this.name, this.response);
         }
 
         @Override
         public Stub buildForAllClients() {
-            return new Stub(null, this.query, this.response);
+            if (this.name == null) {
+                this.name = "common::%s".formatted(this.query);
+            }
+            return new Stub(null, this.query, this.name, this.response);
         }
     }
 }

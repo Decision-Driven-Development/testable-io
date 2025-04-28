@@ -42,6 +42,16 @@ import lombok.NonNull;
  * @since 0.1
  */
 public record GenericResponse(@NonNull Object contents, int delay, Map<String, Object> metadata) {
+    /**
+     * A test response object that can be used for testing purposes. It contains an empty map of
+     * metadata and a delay of 0 milliseconds.
+     */
+    public static final GenericResponse TEST_RESPONSE = new GenericResponse(
+        "test default",
+        0,
+        Map.of()
+    );
+
     public GenericResponse(final @NonNull Object contents) {
         this(contents, 0, Map.of());
     }
