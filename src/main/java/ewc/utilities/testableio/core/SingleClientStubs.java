@@ -38,7 +38,7 @@ class SingleClientStubs {
     /**
      * The storage for all the configured responses.
      */
-    private final Map<String, SingleQueryResponses> stubs = new HashMap<>();
+    private final Map<QueryId, SingleQueryResponses> stubs = new HashMap<>();
 
     /**
      * Returns the next response for the given query.
@@ -48,7 +48,7 @@ class SingleClientStubs {
      */
     @SneakyThrows
     public GenericResponse nextResponseFor(final GenericRequest query) {
-        final String key = query.queryId();
+        final QueryId key = query.queryId();
         if (!this.stubs.containsKey(key)) {
             throw new NoSuchElementException("No responses configured");
         }
@@ -60,10 +60,10 @@ class SingleClientStubs {
     }
 
     public void setSingleResponseFor(final String query, final GenericResponse response) {
-        this.stubs.put(query, new SingleQueryResponses(query, response));
+        this.stubs.put(new QueryId(query), new SingleQueryResponses(query, response));
     }
 
     public void setMultipleResponsesFor(final String query, final GenericResponse... responses) {
-        this.stubs.put(query, new SingleQueryResponses(query, responses));
+        this.stubs.put(new QueryId(query), new SingleQueryResponses(query, responses));
     }
 }

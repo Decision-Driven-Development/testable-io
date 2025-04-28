@@ -69,8 +69,8 @@ public class GenericRequest {
      *
      * @return The ID of the client performing the request.
      */
-    public String clientId() {
-        return this.client.apply(this);
+    public ClientId clientId() {
+        return new ClientId(this.client.apply(this));
     }
 
     /**
@@ -79,8 +79,8 @@ public class GenericRequest {
      *
      * @return The query ID of the request.
      */
-    public String queryId() {
-        return this.query.apply(this);
+    public QueryId queryId() {
+        return new QueryId(this.query.apply(this));
     }
 
     /**

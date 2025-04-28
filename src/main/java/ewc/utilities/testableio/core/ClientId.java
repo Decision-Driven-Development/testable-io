@@ -24,27 +24,5 @@
 
 package ewc.utilities.testableio.core;
 
-import ewc.utilities.testableio.utils.MockRequest;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.Test;
-
-/**
- * Unit-tests for the {@link GenericRequest} class.
- *
- * @since 0.1
- */
-final class GenericRequestTest {
-    @Test
-    void shouldExtractClientId() {
-        final GenericRequest target = new MockRequest().assignedToClient();
-        Assertions.assertThat(target.clientId())
-            .isEqualTo(new ClientId("12345"));
-    }
-
-    @Test
-    void shouldExtractQueryId() {
-        final GenericRequest target = new MockRequest().assignedToClient();
-        Assertions.assertThat(target.queryId())
-            .isEqualTo(new QueryId("getItemRecommendations"));
-    }
+public record ClientId(String client) {
 }

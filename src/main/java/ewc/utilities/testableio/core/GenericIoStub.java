@@ -41,7 +41,7 @@ public class GenericIoStub {
     /**
      * The stubs for each client.
      */
-    private final Map<String, SingleClientStubs> stubs = new HashMap<>();
+    private final Map<ClientId, SingleClientStubs> stubs = new HashMap<>();
 
     /**
      * Returns the next response for the given query.
@@ -75,7 +75,8 @@ public class GenericIoStub {
     public void addStubForClient(
         final String client, final String query, final GenericResponse response
     ) {
-        this.stubs.putIfAbsent(client, new SingleClientStubs());
-        this.stubs.get(client).setSingleResponseFor(query, response);
+        final ClientId clientId = new ClientId(client);
+        this.stubs.putIfAbsent(clientId, new SingleClientStubs());
+        this.stubs.get(clientId).setSingleResponseFor(query, response);
     }
 }
