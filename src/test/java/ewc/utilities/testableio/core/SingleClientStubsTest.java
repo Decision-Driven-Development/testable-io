@@ -24,7 +24,6 @@
 
 package ewc.utilities.testableio.core;
 
-import ewc.utilities.testableio.utils.MockRequest;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import org.assertj.core.api.Assertions;
@@ -46,7 +45,7 @@ final class SingleClientStubsTest {
     @Test
     void throwsIfNoResponsesConfigured() {
         final SingleClientStubs target = new SingleClientStubs();
-        final GenericRequest request = new MockRequest().assignedToClient();
+        final GenericRequest request = GenericRequest.SPECIFIC_CLIENT;
         Assertions.assertThatExceptionOfType(NoSuchElementException.class)
             .isThrownBy(() -> target.nextResponseFor(request))
             .withMessage("No responses configured");
@@ -61,11 +60,11 @@ final class SingleClientStubsTest {
         target.setSingleResponseFor(
             "test_request", new GenericResponse("Recommendations page", 1000, Map.of())
         );
-        Assertions.assertThat(target.nextResponseFor(new MockRequest().clientUnknown()))
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.ANY_CLIENT))
             .isNotNull()
             .extracting("contents").isEqualTo("Recommendations page");
         final long now = System.currentTimeMillis();
-        Assertions.assertThat(target.nextResponseFor(new MockRequest().assignedToClient()))
+        Assertions.assertThat(target.nextResponseFor(GenericRequest.SPECIFIC_CLIENT))
             .isNotNull()
             .extracting("contents").isEqualTo("Recommendations page");
         Assertions.assertThat(System.currentTimeMillis() - now)

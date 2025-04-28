@@ -40,8 +40,17 @@ public record Response(String query, String name, GenericResponse response) {
      */
     static final Response TEST_RESPONSE = Response
         .forQueryId("test_request")
-        .withContents(GenericResponse.TEST_RESPONSE)
+        .withContents(GenericResponse.TEST_DEFAULT)
         .withResponseId("test_response")
+        .build();
+
+    /**
+     * Another testing instance of the response.
+     */
+    static final Response EMPTY_RESPONSE = Response
+        .forQueryId("test_request")
+        .withContents(GenericResponse.EMPTY)
+        .withResponseId("empty_response")
         .build();
 
     @SuppressWarnings("PMD.ProhibitPublicStaticMethod")

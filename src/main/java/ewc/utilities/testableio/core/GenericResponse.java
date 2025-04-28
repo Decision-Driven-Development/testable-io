@@ -44,13 +44,14 @@ import lombok.NonNull;
 public record GenericResponse(@NonNull Object contents, int delay, Map<String, Object> metadata) {
     /**
      * A test response object that can be used for testing purposes. It contains an empty map of
-     * metadata and a delay of 0 milliseconds.
+     * metadata, a delay of 0 milliseconds and a simple string as the contents.
      */
-    public static final GenericResponse TEST_RESPONSE = new GenericResponse(
-        "test default",
-        0,
-        Map.of()
-    );
+    static final GenericResponse TEST_DEFAULT = new GenericResponse("test default");
+
+    /**
+     * The response for the specific client.
+     */
+    static final GenericResponse EMPTY = new GenericResponse("empty response");
 
     public GenericResponse(final @NonNull Object contents) {
         this(contents, 0, Map.of());

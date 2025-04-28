@@ -24,7 +24,6 @@
 
 package ewc.utilities.testableio.core;
 
-import ewc.utilities.testableio.utils.MockRequest;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,14 +35,14 @@ import org.junit.jupiter.api.Test;
 final class GenericRequestTest {
     @Test
     void shouldExtractClientId() {
-        final GenericRequest target = new MockRequest().assignedToClient();
+        final GenericRequest target = GenericRequest.SPECIFIC_CLIENT;
         Assertions.assertThat(target.clientId())
             .isEqualTo(new ClientId("12345"));
     }
 
     @Test
     void shouldExtractQueryId() {
-        final GenericRequest target = new MockRequest().assignedToClient();
+        final GenericRequest target = GenericRequest.SPECIFIC_CLIENT;
         Assertions.assertThat(target.queryId())
             .isEqualTo(new QueryId("test_request"));
     }

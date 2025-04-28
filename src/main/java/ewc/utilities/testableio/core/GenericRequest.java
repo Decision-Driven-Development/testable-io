@@ -39,6 +39,36 @@ import lombok.Builder;
 @Builder
 public class GenericRequest {
     /**
+     * The request for the unspecified client.
+     */
+    static final GenericRequest ANY_CLIENT =
+        GenericRequest.builder()
+            .client(req -> req.parameter("clientId").toString())
+            .query(req -> req.parameter("url").toString())
+            .parameters(
+                Map.of(
+                    "clientId", "unspecified",
+                    "url", "test_request"
+                )
+            )
+            .build();
+
+    /**
+     * The request for a specific client.
+     */
+    static final GenericRequest SPECIFIC_CLIENT =
+        GenericRequest.builder()
+            .client(req -> req.parameter("clientId").toString())
+            .query(req -> req.parameter("url").toString())
+            .parameters(
+                Map.of(
+                    "clientId", "12345",
+                    "url", "test_request"
+                )
+            )
+            .build();
+
+    /**
      * The parameters of the request. These are used to modify the request data.
      */
     private final Map<String, Object> parameters;

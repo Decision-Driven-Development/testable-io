@@ -42,14 +42,14 @@ final class StubBuilderTest {
     void shouldBuildACommonStub() {
         final Response common = Response
             .forQueryId(StubBuilderTest.QUERY)
-            .withContents(GenericResponse.TEST_RESPONSE)
+            .withContents(GenericResponse.TEST_DEFAULT)
             .build();
         Assertions.assertThat(common)
             .isEqualTo(
                 new Response(
                     StubBuilderTest.QUERY,
                     StubBuilderTest.QUERY,
-                    GenericResponse.TEST_RESPONSE
+                    GenericResponse.TEST_DEFAULT
                 )
             );
     }
@@ -58,7 +58,7 @@ final class StubBuilderTest {
     void shouldBuildWithSpecificName() {
         final Response specific = Response
             .forQueryId(StubBuilderTest.QUERY)
-            .withContents(GenericResponse.TEST_RESPONSE)
+            .withContents(GenericResponse.TEST_DEFAULT)
             .withResponseId("myStub")
             .build();
         Assertions.assertThat(specific)
@@ -66,7 +66,7 @@ final class StubBuilderTest {
                 new Response(
                     StubBuilderTest.QUERY,
                     "myStub",
-                    GenericResponse.TEST_RESPONSE
+                    GenericResponse.TEST_DEFAULT
                 )
             );
     }
