@@ -25,6 +25,7 @@
 package ewc.utilities.testableio.core;
 
 import ewc.utilities.testableio.utils.MockRequest;
+import java.util.Set;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -52,10 +53,15 @@ final class GenericIoStubTest {
     private static final GenericResponse SPECIFIC_RESPONSE =
         new GenericResponse("client-specific response");
 
+    /**
+     * The generic query ID for the tests.
+     */
+    private static final String QUERY = "test_request";
+
     @Test
     void createDefaultStub() {
         final GenericIoStub target = new GenericIoStub();
-        target.addStub(Stub.COMMON_TEST);
+        target.addCommonResponse(Response.TEST_RESPONSE);
         Assertions.assertThat(target.nextResponseFor(GenericIoStubTest.ANY_CLIENT))
             .isEqualTo(GenericResponse.TEST_RESPONSE);
         Assertions.assertThat(target.nextResponseFor(GenericIoStubTest.SPECIFIC_CLIENT))
@@ -65,16 +71,34 @@ final class GenericIoStubTest {
     @Test
     void createInfiniteStubForSpecificClient() {
         final GenericIoStub target = new GenericIoStub();
-        target.addStub(Stub.COMMON_TEST);
-        target.addStub(
-            Stub.forQuery("getItemRecommendations")
+        target.addCommonResponse(Response.TEST_RESPONSE);
+        target.addClientResponse(
+            Response.forQueryId(GenericIoStubTest.QUERY)
                 .withContents(GenericIoStubTest.SPECIFIC_RESPONSE)
-                .withName("client-specific response")
-                .buildForSpecificClient("12345")
+                .withResponseId("client-specific response")
+                .build(),
+            GenericIoStubTest.SPECIFIC_CLIENT.clientId()
         );
         Assertions.assertThat(target.nextResponseFor(GenericIoStubTest.ANY_CLIENT))
             .isEqualTo(GenericResponse.TEST_RESPONSE);
         Assertions.assertThat(target.nextResponseFor(GenericIoStubTest.SPECIFIC_CLIENT))
             .isEqualTo(GenericIoStubTest.SPECIFIC_RESPONSE);
+    }
+
+    @Test
+    void shouldAddResponseToStoredResponses() {
+        final GenericIoStub target = new GenericIoStub();
+        target.addCommonResponse(Response.TEST_RESPONSE);
+        target.addClientResponse(
+            Response.forQueryId(GenericIoStubTest.QUERY)
+                .withContents(GenericIoStubTest.SPECIFIC_RESPONSE)
+                .withResponseId("client-specific response")
+                .build(),
+            GenericIoStubTest.SPECIFIC_CLIENT.clientId()
+        );
+        final Set<Response> responses = target.getResponsesFor(GenericIoStubTest.QUERY);
+        Assertions.assertThat(responses.stream().map(Response::name).toList())
+            .isNotEmpty()
+            .containsExactlyInAnyOrder("test_response", "client-specific response");
     }
 }

@@ -45,7 +45,7 @@ public final class MockRequest {
     private final GenericRequest unknown;
 
     public MockRequest() {
-        this.assigned = GenericRequest.<String>builder()
+        this.assigned = GenericRequest.builder()
             .parameters(
                 Map.of(
                     "clientId", "12345",
@@ -55,7 +55,7 @@ public final class MockRequest {
             .client(MockRequest.clientDiscriminator())
             .query(MockRequest.queryDiscriminator())
             .build();
-        this.unknown = GenericRequest.<String>builder()
+        this.unknown = GenericRequest.builder()
             .parameters(
                 Map.of(
                     "clientId", "67890",
@@ -79,7 +79,7 @@ public final class MockRequest {
         return request -> {
             final String result;
             if (request.parameter("url").toString().contains("recommendations")) {
-                result = "getItemRecommendations";
+                result = "test_request";
             } else {
                 result = "home";
             }

@@ -25,7 +25,10 @@
 package ewc.utilities.testableio.core;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * The class that keeps track of all the stubs for all the clients.
@@ -44,6 +47,11 @@ public class GenericIoStub {
     private final Map<ClientId, SingleClientStubs> stubs = new HashMap<>();
 
     /**
+     * The set of all the responses.
+     */
+    private final Set<Response> responses = new HashSet<>();
+
+    /**
      * Returns the next response for the given query.
      *
      * @param query The query for which to get the next response.
@@ -56,12 +64,44 @@ public class GenericIoStub {
     }
 
     /**
-     * Adds a stub to the internal stub storage.
-     * @param stub The stub to be added.
+     * Adds a common response for all clients.
+     * @param response The response to be added.
      */
-    public void addStub(final Stub stub) {
-        final ClientId key = new ClientId(stub.client());
-        this.stubs.putIfAbsent(key, new SingleClientStubs());
-        this.stubs.get(key).setSingleResponseFor(stub.query(), stub.response());
+    public void addCommonResponse(final Response response) {
+        this.addStub(response, GenericIoStub.COMMON_CLIENT);
     }
+
+    /**
+     * Adds a response for a specific client.
+     * @param response The response to be added.
+     * @param client The client ID for which the response is to be added.
+     */
+    public void addClientResponse(final Response response, final ClientId client) {
+        this.addStub(response, client);
+    }
+
+    /**
+     * Returns the set of all responses for the given query.
+     *
+     * @param query The query for which to get the responses.
+     * @return The set of responses for the given query.
+     */
+    public Set<Response> getResponsesFor(final String query) {
+        return this.responses
+            .stream()
+            .filter(response -> response.query().equals(query))
+            .collect(Collectors.toSet());
+    }
+
+    /**
+     * Adds a stub to the internal stub storage.
+     * @param response The stub to be added.
+     * @param client The client ID for which the stub is to be added.
+     */
+    private void addStub(final Response response, final ClientId client) {
+        this.responses.add(response);
+        this.stubs.putIfAbsent(client, new SingleClientStubs());
+        this.stubs.get(client).setSingleResponseFor(response.query(), response.response());
+    }
+
 }

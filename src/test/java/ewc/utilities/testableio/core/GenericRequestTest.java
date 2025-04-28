@@ -45,6 +45,6 @@ final class GenericRequestTest {
     void shouldExtractQueryId() {
         final GenericRequest target = new MockRequest().assignedToClient();
         Assertions.assertThat(target.queryId())
-            .isEqualTo(new QueryId("getItemRecommendations"));
+            .isEqualTo(new QueryId("test_request"));
     }
 }

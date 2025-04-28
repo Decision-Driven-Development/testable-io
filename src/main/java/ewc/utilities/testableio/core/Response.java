@@ -24,27 +24,45 @@
 
 package ewc.utilities.testableio.core;
 
+import java.util.Objects;
+
 /**
  * A stub for a query.
  *
- * @param client The optional client ID for which the stub is valid.
  * @param query The ID of the query to be stubbed.
  * @param name The ID of the response.
  * @param response The response to be returned by the stub.
- *
  * @since 0.2
  */
-public record Stub(String client, String query, String name, GenericResponse response) {
+public record Response(String query, String name, GenericResponse response) {
     /**
      * The testing instance of the stub.
      */
-    static final Stub COMMON_TEST = forQuery("getItemRecommendations")
+    static final Response TEST_RESPONSE = Response
+        .forQueryId("test_request")
         .withContents(GenericResponse.TEST_RESPONSE)
-        .buildForAllClients();
+        .withResponseId("test_response")
+        .build();
 
     @SuppressWarnings("PMD.ProhibitPublicStaticMethod")
-    public static QueryStubBuilder forQuery(final String query) {
+    public static QueryStubBuilder forQueryId(final String query) {
         return new ConcreteQueryStubBuilder(query);
+    }
+
+    @Override
+    public boolean equals(final Object other) {
+        final boolean result;
+        if (!(other instanceof Response resp)) {
+            result = false;
+        } else {
+            result = Objects.equals(this.name, resp.name) && Objects.equals(this.query, resp.query);
+        }
+        return result;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(this.query, this.name);
     }
 
     /**
@@ -62,11 +80,9 @@ public record Stub(String client, String query, String name, GenericResponse res
      * @since 0.2
      */
     public interface StubBuilder {
-        StubBuilder withName(String name);
+        StubBuilder withResponseId(String name);
 
-        Stub buildForSpecificClient(String client);
-
-        Stub buildForAllClients();
+        Response build();
 
     }
 
@@ -120,25 +136,18 @@ public record Stub(String client, String query, String name, GenericResponse res
         }
 
         @Override
-        public StubBuilder withName(final String identifier) {
+        public StubBuilder withResponseId(final String identifier) {
             this.name = identifier;
             return this;
         }
 
         @Override
-        public Stub buildForSpecificClient(final String client) {
+        public Response build() {
             if (this.name == null) {
-                this.name = "%s::%s".formatted(client, this.query);
+                this.name = this.query;
             }
-            return new Stub(client, this.query, this.name, this.response);
-        }
-
-        @Override
-        public Stub buildForAllClients() {
-            if (this.name == null) {
-                this.name = "common::%s".formatted(this.query);
-            }
-            return new Stub("common", this.query, this.name, this.response);
+            return new Response(this.query, this.name, this.response);
         }
     }
+
 }

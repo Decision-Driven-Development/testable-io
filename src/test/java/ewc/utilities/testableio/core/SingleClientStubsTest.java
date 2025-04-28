@@ -59,7 +59,7 @@ final class SingleClientStubsTest {
             "getHomePage", new GenericResponse("Home page", 0, Map.of())
         );
         target.setSingleResponseFor(
-            "getItemRecommendations", new GenericResponse("Recommendations page", 1000, Map.of())
+            "test_request", new GenericResponse("Recommendations page", 1000, Map.of())
         );
         Assertions.assertThat(target.nextResponseFor(new MockRequest().clientUnknown()))
             .isNotNull()

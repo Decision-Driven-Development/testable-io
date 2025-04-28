@@ -28,7 +28,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit-tests for the {@link Stub.StubBuilder} class.
+ * Unit-tests for the {@link Response.StubBuilder} class.
  *
  * @since 0.2
  */
@@ -40,33 +40,15 @@ final class StubBuilderTest {
 
     @Test
     void shouldBuildACommonStub() {
-        final Stub common = Stub
-            .forQuery(StubBuilderTest.QUERY)
+        final Response common = Response
+            .forQueryId(StubBuilderTest.QUERY)
             .withContents(GenericResponse.TEST_RESPONSE)
-            .buildForAllClients();
+            .build();
         Assertions.assertThat(common)
             .isEqualTo(
-                new Stub(
-                    "common",
+                new Response(
                     StubBuilderTest.QUERY,
-                    "common::recommendationIds",
-                    GenericResponse.TEST_RESPONSE
-                )
-            );
-    }
-
-    @Test
-    void shouldBuildSpecificClientStub() {
-        final Stub specific = Stub
-            .forQuery(StubBuilderTest.QUERY)
-            .withContents(GenericResponse.TEST_RESPONSE)
-            .buildForSpecificClient("client1");
-        Assertions.assertThat(specific)
-            .isEqualTo(
-                new Stub(
-                    "client1",
                     StubBuilderTest.QUERY,
-                    "client1::recommendationIds",
                     GenericResponse.TEST_RESPONSE
                 )
             );
@@ -74,15 +56,14 @@ final class StubBuilderTest {
 
     @Test
     void shouldBuildWithSpecificName() {
-        final Stub specific = Stub
-            .forQuery(StubBuilderTest.QUERY)
+        final Response specific = Response
+            .forQueryId(StubBuilderTest.QUERY)
             .withContents(GenericResponse.TEST_RESPONSE)
-            .withName("myStub")
-            .buildForSpecificClient("client1");
+            .withResponseId("myStub")
+            .build();
         Assertions.assertThat(specific)
             .isEqualTo(
-                new Stub(
-                    "client1",
+                new Response(
                     StubBuilderTest.QUERY,
                     "myStub",
                     GenericResponse.TEST_RESPONSE
