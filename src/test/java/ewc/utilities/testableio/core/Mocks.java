@@ -72,24 +72,21 @@ public final class Mocks {
         return Stub
             .forQueryId("test_request")
             .withContents(Mocks.emptyResponse())
-            .withResponseId("empty_response")
-            .build();
+            .withResponseId("empty_response");
     }
 
     static Stub errorStub() {
         return Stub
             .forQueryId("test_request")
             .withContents(Mocks.errorResponse())
-            .withResponseId("error_response")
-            .build();
+            .withResponseId("error_response");
     }
 
     static Stub defaultStub() {
         return Stub
             .forQueryId("test_request")
             .withContents(Mocks.defaultResponse())
-            .withResponseId("default_response")
-            .build();
+            .withResponseId("default_response");
     }
 
 }

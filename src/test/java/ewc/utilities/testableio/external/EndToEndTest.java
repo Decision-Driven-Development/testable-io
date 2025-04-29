@@ -43,7 +43,10 @@ final class EndToEndTest {
     public static final ClientId ANY_CLIENT = new ClientId("any client");
     public static final ClientId VIP_CLIENT = new ClientId("VIP client");
     public static final ClientId NEW_CLIENT = new ClientId("new client");
-
+    public static final GenericResponse DEFAULT_HOME_PAGE = new GenericResponse("html for the home page");
+    public static final GenericResponse DEFAULT_NUMBER_PAGE = new GenericResponse(1000L);
+    public static final IllegalStateException NO_SUCH_PAGE = new IllegalStateException("no such page");
+    public static final GenericResponse VIP_HOME_PAGE = new GenericResponse("VIP home page");
     private GenericIoStub target;
 
     @BeforeEach
@@ -51,27 +54,92 @@ final class EndToEndTest {
         this.target = new GenericIoStub();
         Stream.of(
             Stub.forQueryId("home")
-                .withContents(new GenericResponse("html for the home page"))
-                .build(),
+                .withContents(DEFAULT_HOME_PAGE)
+                .withResponseId("home"),
             Stub.forQueryId("non-existing")
-                .withContents(new GenericResponse(new IllegalStateException("no such page")))
-                .build(),
+                .withContents(new GenericResponse(NO_SUCH_PAGE))
+                .withResponseId("non-existing"),
             Stub.forQueryId("number")
-                .withContents(new GenericResponse(1000L))
-                .build()
+                .withContents(DEFAULT_NUMBER_PAGE)
+                .withResponseId("number")
         ).forEach(stub -> this.target.addCommonStub(stub));
     }
 
     @Test
     void shouldHaveAPredefinedSetOfDefaultResponses() {
-        Assertions.assertThat(this.target.nextResponseFor(ANY_CLIENT, HOME_PAGE))
-            .isEqualTo(new GenericResponse("html for the home page"));
-        Assertions.assertThat(this.target.nextResponseFor(VIP_CLIENT, HOME_PAGE))
-            .isEqualTo(new GenericResponse("html for the home page"));
-        Assertions.assertThatThrownBy(() -> this.target.nextResponseFor(ANY_CLIENT, MISSING_PAGE))
-            .isInstanceOf(IllegalStateException.class)
-            .hasMessage("no such page");
-        Assertions.assertThat(this.target.nextResponseFor(ANY_CLIENT, NUMBER_PAGE))
-            .isEqualTo(new GenericResponse(1000L));
+        when(VIP_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+        when(NEW_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+        when(ANY_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+        when(ANY_CLIENT).requests(NUMBER_PAGE).then(DEFAULT_NUMBER_PAGE);
+        when(NEW_CLIENT).requests(NUMBER_PAGE).then(DEFAULT_NUMBER_PAGE);
+        when(VIP_CLIENT).requests(NUMBER_PAGE).then(DEFAULT_NUMBER_PAGE);
+        when(ANY_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE);
+        when(NEW_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE);
+        when(VIP_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE);
+    }
+
+    @Test
+    void shouldSetSpecificStubForAClient() {
+        final Stub newHome = Stub.forQueryId("home").withContents(VIP_HOME_PAGE).withResponseId("home");
+        this.target.addClientStub(newHome, VIP_CLIENT);
+        when(VIP_CLIENT).requests(HOME_PAGE).then(VIP_HOME_PAGE);
+        when(NEW_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+        when(ANY_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+    }
+
+    @Test
+    void shouldChooseActiveStubFromStoredStubs() {
+        final Stub newHome = Stub.forQueryId("home").withContents(DEFAULT_NUMBER_PAGE).withResponseId("number");
+        this.target.addClientStub(newHome, VIP_CLIENT);
+        when(VIP_CLIENT).requests(HOME_PAGE).then(DEFAULT_NUMBER_PAGE);
+        when(NEW_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+        when(ANY_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+
+        this.target.setActiveResponse(VIP_CLIENT, HOME_PAGE, new ResponseId("home"));
+        when(VIP_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+        when(NEW_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+        when(ANY_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+
+        this.target.setActiveResponse(VIP_CLIENT, HOME_PAGE, new ResponseId("number"));
+        when(VIP_CLIENT).requests(HOME_PAGE).then(DEFAULT_NUMBER_PAGE);
+        when(NEW_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+        when(ANY_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+    }
+
+
+    private When when(ClientId client) {
+        return new When(client);
+    }
+
+    private class When {
+        private final ClientId client;
+
+        public When(ClientId client) {
+            this.client = client;
+        }
+
+        public Then requests(QueryId query) {
+            return new Then(client, query);
+        }
+    }
+
+    private class Then {
+        private final ClientId client;
+        private final QueryId query;
+
+        public Then(ClientId client, QueryId query) {
+            this.client = client;
+            this.query = query;
+        }
+
+        public void then(GenericResponse response) {
+            Assertions.assertThat(target.nextResponseFor(this.client, this.query)).isEqualTo(response);
+        }
+
+        public void thenThrows(RuntimeException exception) {
+            Assertions.assertThatThrownBy(() -> target.nextResponseFor(this.client, this.query))
+                .isInstanceOf(exception.getClass())
+                .hasMessage(exception.getMessage());
+        }
     }
 }

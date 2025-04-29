@@ -48,7 +48,7 @@ final class StubBuilderTest {
         final Stub common = Stub
             .forQueryId(StubBuilderTest.QUERY.query())
             .withContents(Mocks.defaultResponse())
-            .build();
+            .withResponseId("recommendationIds");
         Assertions.assertThat(common)
             .isEqualTo(
                 new Stub(
@@ -64,8 +64,7 @@ final class StubBuilderTest {
         final Stub specific = Stub
             .forQueryId(StubBuilderTest.QUERY.query())
             .withContents(Mocks.defaultResponse())
-            .withResponseId("myStub")
-            .build();
+            .withResponseId("myStub");
         Assertions.assertThat(specific)
             .isEqualTo(
                 new Stub(

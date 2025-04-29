@@ -25,16 +25,28 @@
 package ewc.utilities.testableio.core;
 
 import java.util.Objects;
+import lombok.NonNull;
 
 /**
  * A stub for a query.
  *
- * @param query The ID of the query to be stubbed.
- * @param name The ID of the response.
- * @param response The response to be returned by the stub.
  * @since 0.2
  */
-public record Stub(QueryId query, ResponseId name, GenericResponse response) {
+public final class Stub {
+    private final QueryId query;
+    private final ResponseId name;
+    private final GenericResponse response;
+
+    /**
+     * @param query The ID of the query to be stubbed.
+     * @param name The ID of the response.
+     * @param response The response to be returned by the stub.
+     */
+    Stub(QueryId query, ResponseId name, GenericResponse response) {
+        this.query = query;
+        this.name = name;
+        this.response = response;
+    }
 
     @SuppressWarnings("PMD.ProhibitPublicStaticMethod")
     public static QueryStubBuilder forQueryId(final String query) {
@@ -57,6 +69,27 @@ public record Stub(QueryId query, ResponseId name, GenericResponse response) {
         return Objects.hash(this.query, this.name);
     }
 
+    public QueryId query() {
+        return query;
+    }
+
+    public ResponseId name() {
+        return name;
+    }
+
+    public GenericResponse response() {
+        return response;
+    }
+
+    @Override
+    public String toString() {
+        return "Stub[" +
+            "query=" + query + ", " +
+            "name=" + name + ", " +
+            "response=" + response + ']';
+    }
+
+
     /**
      * Interface for building a stub for a specific query ID.
      *
@@ -72,9 +105,7 @@ public record Stub(QueryId query, ResponseId name, GenericResponse response) {
      * @since 0.2
      */
     public interface StubBuilder {
-        StubBuilder withResponseId(String name);
-
-        Stub build();
+        Stub withResponseId(String name);
 
     }
 
@@ -117,28 +148,14 @@ public record Stub(QueryId query, ResponseId name, GenericResponse response) {
          */
         private final GenericResponse response;
 
-        /**
-         * The name of the response.
-         */
-        private String name;
-
         ConcreteStubBuilder(final String query, final GenericResponse response) {
             this.query = query;
             this.response = response;
         }
 
         @Override
-        public StubBuilder withResponseId(final String identifier) {
-            this.name = identifier;
-            return this;
-        }
-
-        @Override
-        public Stub build() {
-            if (this.name == null) {
-                this.name = this.query;
-            }
-            return new Stub(new QueryId(this.query), new ResponseId(this.name), this.response);
+        public Stub withResponseId(@NonNull final String name) {
+            return new Stub(new QueryId(this.query), new ResponseId(name), this.response);
         }
     }
 }
