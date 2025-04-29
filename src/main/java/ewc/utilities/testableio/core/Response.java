@@ -36,10 +36,15 @@ import java.util.Objects;
  */
 public record Response(QueryId query, ResponseId name, GenericResponse response) {
     /**
+     * The starting point for building a stub.
+     */
+    public static final QueryStubBuilder SLUG = Response
+        .forQueryId("test_request");
+
+    /**
      * The testing instance of the stub.
      */
-    static final Response TEST = Response
-        .forQueryId("test_request")
+    static final Response TEST = SLUG
         .withContents(GenericResponse.TEST)
         .withResponseId("test_response")
         .build();
@@ -47,10 +52,17 @@ public record Response(QueryId query, ResponseId name, GenericResponse response)
     /**
      * Another testing instance of the response.
      */
-    static final Response EMPTY = Response
-        .forQueryId("test_request")
+    static final Response EMPTY = SLUG
         .withContents(GenericResponse.EMPTY)
         .withResponseId("empty_response")
+        .build();
+
+    /**
+     * The error instance of the response.
+     */
+    static final Response ERROR = SLUG
+        .withContents(GenericResponse.ERROR)
+        .withResponseId("error_response")
         .build();
 
     @SuppressWarnings("PMD.ProhibitPublicStaticMethod")
@@ -158,5 +170,4 @@ public record Response(QueryId query, ResponseId name, GenericResponse response)
             return new Response(new QueryId(this.query), new ResponseId(this.name), this.response);
         }
     }
-
 }

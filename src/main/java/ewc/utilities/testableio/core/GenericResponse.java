@@ -43,6 +43,11 @@ import lombok.NonNull;
  */
 public record GenericResponse(@NonNull Object contents, int delay, Map<String, Object> metadata) {
     /**
+     * A test response object that emulates an error. It contains (and throws) a runtime exception.
+     */
+    static final GenericResponse ERROR = new GenericResponse(new RuntimeException("test error"));
+
+    /**
      * A test response object that can be used for testing purposes. It contains an empty map of
      * metadata, a delay of 0 milliseconds and a simple string as the contents.
      */

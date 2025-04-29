@@ -35,9 +35,9 @@ import org.junit.jupiter.api.Test;
  */
 final class GenericIoStubTest {
     /**
-     * The generic query ID for the tests.
+     * The client id for the test.
      */
-    private static final String QUERY = "test_request";
+    public static final ClientId SPEC_CLIENT = GenericRequest.FOR_SPEC_CLIENT.clientId();
 
     @Test
     void createDefaultStub() {
@@ -53,10 +53,7 @@ final class GenericIoStubTest {
     void createInfiniteStubForSpecificClient() {
         final GenericIoStub target = new GenericIoStub();
         target.addCommonResponse(Response.TEST);
-        target.addClientResponse(
-            Response.EMPTY,
-            GenericRequest.FOR_SPEC_CLIENT.clientId()
-        );
+        target.addClientResponse(Response.EMPTY, GenericIoStubTest.SPEC_CLIENT);
         Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_ANY_CLIENT))
             .isEqualTo(GenericResponse.TEST);
         Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_SPEC_CLIENT))
@@ -67,11 +64,8 @@ final class GenericIoStubTest {
     void shouldAddResponseToStoredResponses() {
         final GenericIoStub target = new GenericIoStub();
         target.addCommonResponse(Response.TEST);
-        target.addClientResponse(
-            Response.EMPTY,
-            GenericRequest.FOR_SPEC_CLIENT.clientId()
-        );
-        final Set<Response> responses = target.getResponsesFor(GenericIoStubTest.QUERY);
+        target.addClientResponse(Response.EMPTY, GenericIoStubTest.SPEC_CLIENT);
+        final Set<Response> responses = target.getResponsesFor("test_request");
         Assertions.assertThat(responses.stream().map(Response::name).toList())
             .isNotEmpty()
             .containsExactlyInAnyOrder(
@@ -81,14 +75,23 @@ final class GenericIoStubTest {
     }
 
     @Test
+    void shouldAddTheExceptionAsTheResponse() {
+        final GenericIoStub target = new GenericIoStub();
+        target.addClientResponse(Response.ERROR, GenericIoStubTest.SPEC_CLIENT);
+        Assertions.assertThatThrownBy(() -> target.nextResponseFor(GenericRequest.FOR_SPEC_CLIENT))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessage("test error");
+    }
+
+    @Test
     void shouldActivateOneOfStoredResponses() {
         final GenericIoStub target = new GenericIoStub();
         target.addCommonResponse(Response.TEST);
-        target.addClientResponse(Response.EMPTY, GenericRequest.FOR_SPEC_CLIENT.clientId());
+        target.addClientResponse(Response.EMPTY, GenericIoStubTest.SPEC_CLIENT);
         Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_SPEC_CLIENT))
             .isEqualTo(GenericResponse.EMPTY);
         target.setActiveResponse(
-            GenericRequest.FOR_SPEC_CLIENT.clientId(),
+            GenericIoStubTest.SPEC_CLIENT,
             Response.TEST.query(),
             Response.TEST.name()
         );
@@ -100,7 +103,7 @@ final class GenericIoStubTest {
     void shouldActivateStoredResponseForNewClient() {
         final GenericIoStub target = new GenericIoStub();
         target.addCommonResponse(Response.TEST);
-        target.addClientResponse(Response.EMPTY, GenericRequest.FOR_SPEC_CLIENT.clientId());
+        target.addClientResponse(Response.EMPTY, GenericIoStubTest.SPEC_CLIENT);
         Assertions.assertThat(target.nextResponseFor(GenericRequest.FOR_NEW_CLIENT))
             .isEqualTo(GenericResponse.TEST);
         target.setActiveResponse(

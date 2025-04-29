@@ -44,7 +44,7 @@ public class GenericRequest {
     static final GenericRequest FOR_ANY_CLIENT = GenericRequest.builder()
         .client(GenericRequest.clientIdExtractor())
         .query(GenericRequest.queryIdExtractor())
-        .parameters(parametersFor("unspecified"))
+        .parameters(Map.of("url", "test_request"))
         .build();
 
     /**
@@ -122,7 +122,15 @@ public class GenericRequest {
     }
 
     private static Function<GenericRequest, String> clientIdExtractor() {
-        return req -> req.parameter("clientId").toString();
+        return req -> {
+            final String result;
+            if (req.parameter("clientId") == null) {
+                result = "common";
+            } else {
+                result = req.parameter("clientId").toString();
+            }
+            return result;
+        };
     }
 
     private static Function<GenericRequest, String> queryIdExtractor() {
