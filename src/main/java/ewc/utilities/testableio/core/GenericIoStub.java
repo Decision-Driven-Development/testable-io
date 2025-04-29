@@ -51,15 +51,9 @@ public class GenericIoStub {
      */
     private final Set<Stub> stored = new HashSet<>();
 
-    /**
-     * Returns the next response for the given query.
-     *
-     * @param query The query for which to get the next response.
-     * @return The next response object.
-     */
-    public GenericResponse nextResponseFor(final GenericRequest query) {
+    public GenericResponse nextResponseFor(final ClientId client, final QueryId query) {
         return this.stubs
-            .getOrDefault(query.clientId(), this.stubs.get(GenericIoStub.COMMON_CLIENT))
+            .getOrDefault(client, this.stubs.get(GenericIoStub.COMMON_CLIENT))
             .nextResponseFor(query);
     }
 

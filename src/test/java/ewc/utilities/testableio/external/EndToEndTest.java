@@ -24,6 +24,10 @@
 
 package ewc.utilities.testableio.external;
 
+import ewc.utilities.testableio.core.*;
+import java.util.stream.Stream;
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -32,9 +36,42 @@ import org.junit.jupiter.api.Test;
  * @since 0.2
  */
 final class EndToEndTest {
+    public static final QueryId HOME_PAGE = new QueryId("home");
+    public static final QueryId MISSING_PAGE = new QueryId("non-existing");
+    public static final QueryId NUMBER_PAGE = new QueryId("number");
+
+    public static final ClientId ANY_CLIENT = new ClientId("any client");
+    public static final ClientId VIP_CLIENT = new ClientId("VIP client");
+    public static final ClientId NEW_CLIENT = new ClientId("new client");
+
+    private GenericIoStub target;
+
+    @BeforeEach
+    void setUp() {
+        this.target = new GenericIoStub();
+        Stream.of(
+            Stub.forQueryId("home")
+                .withContents(new GenericResponse("html for the home page"))
+                .build(),
+            Stub.forQueryId("non-existing")
+                .withContents(new GenericResponse(new IllegalStateException("no such page")))
+                .build(),
+            Stub.forQueryId("number")
+                .withContents(new GenericResponse(1000L))
+                .build()
+        ).forEach(stub -> this.target.addCommonStub(stub));
+    }
 
     @Test
     void shouldHaveAPredefinedSetOfDefaultResponses() {
-        // do nothing yet
+        Assertions.assertThat(this.target.nextResponseFor(ANY_CLIENT, HOME_PAGE))
+            .isEqualTo(new GenericResponse("html for the home page"));
+        Assertions.assertThat(this.target.nextResponseFor(VIP_CLIENT, HOME_PAGE))
+            .isEqualTo(new GenericResponse("html for the home page"));
+        Assertions.assertThatThrownBy(() -> this.target.nextResponseFor(ANY_CLIENT, MISSING_PAGE))
+            .isInstanceOf(IllegalStateException.class)
+            .hasMessage("no such page");
+        Assertions.assertThat(this.target.nextResponseFor(ANY_CLIENT, NUMBER_PAGE))
+            .isEqualTo(new GenericResponse(1000L));
     }
 }

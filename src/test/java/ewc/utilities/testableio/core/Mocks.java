@@ -24,8 +24,6 @@
 
 package ewc.utilities.testableio.core;
 
-import java.util.Map;
-
 /**
  * The utility class providing several predefined test objects.
  *
@@ -34,18 +32,6 @@ import java.util.Map;
 public final class Mocks {
     private Mocks() {
         // Prevent instantiation of the utility class
-    }
-
-    static GenericRequest testRequestFromAnyClient() {
-        return Mocks.testFromClient("any client");
-    }
-
-    static GenericRequest testRequestFromVipClient() {
-        return Mocks.testFromClient("12345");
-    }
-
-    static GenericRequest testRequestFromNewClient() {
-        return Mocks.testFromClient("new client");
     }
 
     /**
@@ -106,17 +92,4 @@ public final class Mocks {
             .build();
     }
 
-    /**
-     * The test utility method to create a request object with "test_request" as query ID.
-     *
-     * @param client String representing the client ID.
-     * @return A GenericRequest object for the specified client ID.
-     */
-    private static GenericRequest testFromClient(final String client) {
-        return GenericRequest.builder()
-            .client(r -> client)
-            .query(r -> "test_request")
-            .parameters(Map.of())
-            .build();
-    }
 }

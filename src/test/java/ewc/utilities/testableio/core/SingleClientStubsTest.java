@@ -26,6 +26,7 @@ package ewc.utilities.testableio.core;
 
 import java.util.Map;
 import java.util.NoSuchElementException;
+import javax.management.Query;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -36,6 +37,9 @@ import org.junit.jupiter.api.Test;
  * @since 0.1
  */
 final class SingleClientStubsTest {
+
+    public static final QueryId TEST_REQUEST = new QueryId("test_request");
+
     @Test
     void couldBeInstantiated() {
         final SingleClientStubs target = new SingleClientStubs();
@@ -45,9 +49,8 @@ final class SingleClientStubsTest {
     @Test
     void throwsIfNoResponsesConfigured() {
         final SingleClientStubs target = new SingleClientStubs();
-        final GenericRequest request = Mocks.testRequestFromAnyClient();
         Assertions.assertThatExceptionOfType(NoSuchElementException.class)
-            .isThrownBy(() -> target.nextResponseFor(request))
+            .isThrownBy(() -> target.nextResponseFor(TEST_REQUEST))
             .withMessage("No responses configured");
     }
 
@@ -60,11 +63,11 @@ final class SingleClientStubsTest {
         target.setSingleResponseFor(
             new QueryId("test_request"), new GenericResponse("Recommendations page", 1000, Map.of())
         );
-        Assertions.assertThat(target.nextResponseFor(Mocks.testRequestFromAnyClient()))
+        Assertions.assertThat(target.nextResponseFor(TEST_REQUEST))
             .isNotNull()
             .extracting("contents").isEqualTo("Recommendations page");
         final long now = System.currentTimeMillis();
-        Assertions.assertThat(target.nextResponseFor(Mocks.testRequestFromVipClient()))
+        Assertions.assertThat(target.nextResponseFor(TEST_REQUEST))
             .isNotNull()
             .extracting("contents").isEqualTo("Recommendations page");
         Assertions.assertThat(System.currentTimeMillis() - now)
