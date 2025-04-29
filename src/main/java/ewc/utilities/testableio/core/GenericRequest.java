@@ -39,33 +39,6 @@ import lombok.Builder;
 @Builder
 public class GenericRequest {
     /**
-     * The request for the unspecified client.
-     */
-    static final GenericRequest FOR_ANY_CLIENT = GenericRequest.builder()
-        .client(GenericRequest.clientIdExtractor())
-        .query(GenericRequest.queryIdExtractor())
-        .parameters(Map.of("url", "test_request"))
-        .build();
-
-    /**
-     * The request for a specific client.
-     */
-    static final GenericRequest FOR_SPEC_CLIENT = GenericRequest.builder()
-        .client(GenericRequest.clientIdExtractor())
-        .query(GenericRequest.queryIdExtractor())
-        .parameters(parametersFor("12345"))
-        .build();
-
-    /**
-     * The request for a non-existing client.
-     */
-    static final GenericRequest FOR_NEW_CLIENT = GenericRequest.builder()
-        .client(GenericRequest.clientIdExtractor())
-        .query(GenericRequest.queryIdExtractor())
-        .parameters(parametersFor("new client"))
-        .build();
-
-    /**
      * The parameters of the request. These are used to modify the request data.
      */
     private final Map<String, Object> parameters;
@@ -119,28 +92,5 @@ public class GenericRequest {
      */
     public <R> R realRequest(final Function<GenericRequest, R> transformer) {
         return transformer.apply(this);
-    }
-
-    private static Function<GenericRequest, String> clientIdExtractor() {
-        return req -> {
-            final String result;
-            if (req.parameter("clientId") == null) {
-                result = "common";
-            } else {
-                result = req.parameter("clientId").toString();
-            }
-            return result;
-        };
-    }
-
-    private static Function<GenericRequest, String> queryIdExtractor() {
-        return req -> req.parameter("url").toString();
-    }
-
-    private static Map<String, Object> parametersFor(final String client) {
-        return Map.of(
-            "clientId", client,
-            "url", "test_request"
-        );
     }
 }

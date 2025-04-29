@@ -47,7 +47,7 @@
                         <configuration>
                             <excludes>
                                 <exclude>pmd:/src/main/java/ewc/utilities/testableio/core/SingleQueryResponses.java</exclude>
-                                <exclude>pmd:/src/main/java/ewc/utilities/testableio/core/Response.java</exclude>
+                                <exclude>pmd:/src/main/java/ewc/utilities/testableio/core/Stub.java</exclude>
                             </excludes>
                         </configuration>
                     </plugin>

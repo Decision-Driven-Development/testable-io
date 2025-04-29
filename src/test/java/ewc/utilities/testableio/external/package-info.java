@@ -23,6 +23,6 @@
  */
 
 /**
- * This package contains utility classes and functions for the TestableIO library.
+ * This package contains end-to-end tests, like the real use cases.
  */
-package ewc.utilities.testableio.utils;
+package ewc.utilities.testableio.external;

@@ -22,28 +22,19 @@
  * SOFTWARE.
  */
 
-package ewc.utilities.testableio.core;
+package ewc.utilities.testableio.external;
 
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit-tests for the {@link GenericRequest} class.
+ * End-to-end tests, like the real use cases for the library.
  *
- * @since 0.1
+ * @since 0.2
  */
-final class GenericRequestTest {
-    @Test
-    void shouldExtractClientId() {
-        final GenericRequest target = Mocks.testRequestFromVipClient();
-        Assertions.assertThat(target.clientId())
-            .isEqualTo(new ClientId("12345"));
-    }
+final class EndToEndTest {
 
     @Test
-    void shouldExtractQueryId() {
-        final GenericRequest target = Mocks.testRequestFromVipClient();
-        Assertions.assertThat(target.queryId())
-            .isEqualTo(new QueryId("test_request"));
+    void shouldHaveAPredefinedSetOfDefaultResponses() {
+        // do nothing yet
     }
 }

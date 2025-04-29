@@ -42,21 +42,6 @@ import lombok.NonNull;
  * @since 0.1
  */
 public record GenericResponse(@NonNull Object contents, int delay, Map<String, Object> metadata) {
-    /**
-     * A test response object that emulates an error. It contains (and throws) a runtime exception.
-     */
-    static final GenericResponse ERROR = new GenericResponse(new RuntimeException("test error"));
-
-    /**
-     * A test response object that can be used for testing purposes. It contains an empty map of
-     * metadata, a delay of 0 milliseconds and a simple string as the contents.
-     */
-    static final GenericResponse TEST = new GenericResponse("test default");
-
-    /**
-     * The response for the specific client.
-     */
-    static final GenericResponse EMPTY = new GenericResponse("empty response");
 
     public GenericResponse(final @NonNull Object contents) {
         this(contents, 0, Map.of());

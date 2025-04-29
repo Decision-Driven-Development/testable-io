@@ -49,7 +49,7 @@ public class GenericIoStub {
     /**
      * The set of all the responses.
      */
-    private final Set<Response> responses = new HashSet<>();
+    private final Set<Stub> stored = new HashSet<>();
 
     /**
      * Returns the next response for the given query.
@@ -66,20 +66,20 @@ public class GenericIoStub {
     /**
      * Adds a common response for all clients.
      *
-     * @param response The response to be added.
+     * @param stub The response to be added.
      */
-    public void addCommonResponse(final Response response) {
-        this.addStub(response, GenericIoStub.COMMON_CLIENT);
+    public void addCommonStub(final Stub stub) {
+        this.addStub(stub, GenericIoStub.COMMON_CLIENT);
     }
 
     /**
      * Adds a response for a specific client.
      *
-     * @param response The response to be added.
+     * @param stub The response to be added.
      * @param client The client ID for which the response is to be added.
      */
-    public void addClientResponse(final Response response, final ClientId client) {
-        this.addStub(response, client);
+    public void addClientStub(final Stub stub, final ClientId client) {
+        this.addStub(stub, client);
     }
 
     /**
@@ -88,8 +88,8 @@ public class GenericIoStub {
      * @param query The query for which to get the responses.
      * @return The set of responses for the given query.
      */
-    public Set<Response> getResponsesFor(final String query) {
-        return this.responses
+    public Set<Stub> getResponsesFor(final String query) {
+        return this.stored
             .stream()
             .filter(response -> response.query().equals(new QueryId(query)))
             .collect(Collectors.toSet());
@@ -105,7 +105,7 @@ public class GenericIoStub {
     public void setActiveResponse(
         final ClientId client, final QueryId query, final ResponseId response
     ) {
-        this.responses.stream().filter(resp -> resp.query().equals(query))
+        this.stored.stream().filter(resp -> resp.query().equals(query))
             .filter(resp -> resp.name().equals(response))
             .findFirst()
             .ifPresentOrElse(
@@ -119,21 +119,21 @@ public class GenericIoStub {
      * Sets the active response for a specific client.
      *
      * @param client The client ID for which the response is to be set.
-     * @param response The response to be set as active.
+     * @param stub The response to be set as active.
      */
-    private void setActiveResponse(final ClientId client, final Response response) {
-        this.getStubsFor(client).setSingleResponseFor(response.query(), response.response());
+    private void setActiveResponse(final ClientId client, final Stub stub) {
+        this.getStubsFor(client).setSingleResponseFor(stub.query(), stub.response());
     }
 
     /**
      * Adds a stub to the internal stub storage.
      *
-     * @param response The stub to be added.
+     * @param stub The stub to be added.
      * @param client The client ID for which the stub is to be added.
      */
-    private void addStub(final Response response, final ClientId client) {
-        this.responses.add(response);
-        this.getStubsFor(client).setSingleResponseFor(response.query(), response.response());
+    private void addStub(final Stub stub, final ClientId client) {
+        this.stored.add(stub);
+        this.getStubsFor(client).setSingleResponseFor(stub.query(), stub.response());
     }
 
     private SingleClientStubs getStubsFor(final ClientId client) {

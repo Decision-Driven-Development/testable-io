@@ -34,36 +34,7 @@ import java.util.Objects;
  * @param response The response to be returned by the stub.
  * @since 0.2
  */
-public record Response(QueryId query, ResponseId name, GenericResponse response) {
-    /**
-     * The starting point for building a stub.
-     */
-    public static final QueryStubBuilder SLUG = Response
-        .forQueryId("test_request");
-
-    /**
-     * The testing instance of the stub.
-     */
-    static final Response TEST = SLUG
-        .withContents(GenericResponse.TEST)
-        .withResponseId("test_response")
-        .build();
-
-    /**
-     * Another testing instance of the response.
-     */
-    static final Response EMPTY = SLUG
-        .withContents(GenericResponse.EMPTY)
-        .withResponseId("empty_response")
-        .build();
-
-    /**
-     * The error instance of the response.
-     */
-    static final Response ERROR = SLUG
-        .withContents(GenericResponse.ERROR)
-        .withResponseId("error_response")
-        .build();
+public record Stub(QueryId query, ResponseId name, GenericResponse response) {
 
     @SuppressWarnings("PMD.ProhibitPublicStaticMethod")
     public static QueryStubBuilder forQueryId(final String query) {
@@ -73,7 +44,7 @@ public record Response(QueryId query, ResponseId name, GenericResponse response)
     @Override
     public boolean equals(final Object other) {
         final boolean result;
-        if (!(other instanceof Response resp)) {
+        if (!(other instanceof Stub resp)) {
             result = false;
         } else {
             result = Objects.equals(this.name, resp.name) && Objects.equals(this.query, resp.query);
@@ -103,7 +74,7 @@ public record Response(QueryId query, ResponseId name, GenericResponse response)
     public interface StubBuilder {
         StubBuilder withResponseId(String name);
 
-        Response build();
+        Stub build();
 
     }
 
@@ -163,11 +134,11 @@ public record Response(QueryId query, ResponseId name, GenericResponse response)
         }
 
         @Override
-        public Response build() {
+        public Stub build() {
             if (this.name == null) {
                 this.name = this.query;
             }
-            return new Response(new QueryId(this.query), new ResponseId(this.name), this.response);
+            return new Stub(new QueryId(this.query), new ResponseId(this.name), this.response);
         }
     }
 }

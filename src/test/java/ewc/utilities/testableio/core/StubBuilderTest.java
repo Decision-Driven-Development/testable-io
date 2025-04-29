@@ -28,7 +28,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit-tests for the {@link Response.StubBuilder} class.
+ * Unit-tests for the {@link Stub.StubBuilder} class.
  *
  * @since 0.2
  */
@@ -45,33 +45,33 @@ final class StubBuilderTest {
 
     @Test
     void shouldBuildACommonStub() {
-        final Response common = Response
+        final Stub common = Stub
             .forQueryId(StubBuilderTest.QUERY.query())
-            .withContents(GenericResponse.TEST)
+            .withContents(Mocks.defaultResponse())
             .build();
         Assertions.assertThat(common)
             .isEqualTo(
-                new Response(
+                new Stub(
                     StubBuilderTest.QUERY,
                     StubBuilderTest.RESPONSE,
-                    GenericResponse.TEST
+                    Mocks.defaultResponse()
                 )
             );
     }
 
     @Test
     void shouldBuildWithSpecificName() {
-        final Response specific = Response
+        final Stub specific = Stub
             .forQueryId(StubBuilderTest.QUERY.query())
-            .withContents(GenericResponse.TEST)
+            .withContents(Mocks.defaultResponse())
             .withResponseId("myStub")
             .build();
         Assertions.assertThat(specific)
             .isEqualTo(
-                new Response(
+                new Stub(
                     StubBuilderTest.QUERY,
                     new ResponseId("myStub"),
-                    GenericResponse.TEST
+                    Mocks.defaultResponse()
                 )
             );
     }
