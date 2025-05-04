@@ -16,6 +16,51 @@
     <version>0.1.1</version>
     <packaging>jar</packaging>
 
+    <name>Testable IO</name>
+    <description>Set of primitives enabling Testing Without Mocks approach for Java applications
+    </description>
+    <inceptionYear>2025</inceptionYear>
+    <organization>
+        <name>Eugene Terekhov</name>
+        <url>https://github.com/nergal-perm</url>
+    </organization>
+    <licenses>
+        <license>
+            <name>MIT</name>
+            <url>
+                https://raw.githubusercontent.com/Decision-Driven-Development/testable-io/refs/heads/master/LICENSE.txt
+            </url>
+            <distribution>site</distribution>
+            <comments>MIT License</comments>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>1</id>
+            <name>Eugene Terekhov</name>
+            <email>nergal@psu.ru</email>
+            <url>https://github.com/nergal-perm</url>
+            <roles>
+                <role>Architect</role>
+                <role>Developer</role>
+            </roles>
+            <timezone>+4</timezone>
+        </developer>
+    </developers>
+
+    <distributionManagement>
+        <downloadUrl>https://central.sonatype.com/artifact/io.github.nergal-perm/testable-io</downloadUrl>
+        <repository>
+            <id>sonatype</id>
+            <name>Sonatype central repository</name>
+            <url>https://central.sonatype.com/artifact/io.github.nergal-perm/testable-io</url>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
@@ -46,8 +91,12 @@
                         <artifactId>qulice-maven-plugin</artifactId>
                         <configuration>
                             <excludes>
-                                <exclude>pmd:/src/main/java/ewc/utilities/testableio/core/SingleQueryResponses.java</exclude>
-                                <exclude>pmd:/src/main/java/ewc/utilities/testableio/core/Stub.java</exclude>
+                                <exclude>
+                                    pmd:/src/main/java/ewc/utilities/testableio/core/SingleQueryResponses.java
+                                </exclude>
+                                <exclude>
+                                    pmd:/src/main/java/ewc/utilities/testableio/core/Stub.java
+                                </exclude>
                             </excludes>
                         </configuration>
                     </plugin>
