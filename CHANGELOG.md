@@ -2,6 +2,19 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+## [0.2.0](https://github.com/Decision-Driven-Development/testable-io/compare/v0.1.1...v0.2.0) (2025-05-04)
+
+
+### Features
+
+* ability to assign stored Response to client Stub ([0715a23](https://github.com/Decision-Driven-Development/testable-io/commit/0715a230b48bbbaa8d79db2020fb8c9073a6f596)), closes [#2](https://github.com/Decision-Driven-Development/testable-io/issues/2)
+* ability to assign stored Response to client Stub and specific Query ([741e230](https://github.com/Decision-Driven-Development/testable-io/commit/741e230ac7ac7b428335d8828e29e80ff4383aa6)), closes [#2](https://github.com/Decision-Driven-Development/testable-io/issues/2)
+* ability to build the Stub record programmatically ([27761df](https://github.com/Decision-Driven-Development/testable-io/commit/27761df3592b1c7cbc30d17d51d90d655f11b7e5)), closes [#2](https://github.com/Decision-Driven-Development/testable-io/issues/2)
+* ability to peek at current responses ([76f8359](https://github.com/Decision-Driven-Development/testable-io/commit/76f83597ef8870a1912890e34f402823cb3c8a31)), closes [#4](https://github.com/Decision-Driven-Development/testable-io/issues/4)
+* ability to set up the Exception as the Response ([3419307](https://github.com/Decision-Driven-Development/testable-io/commit/34193071875686abe2d5056d10ee9feeb7cec002)), closes [#2](https://github.com/Decision-Driven-Development/testable-io/issues/2)
+* add name to the Stub record ([19f2bbf](https://github.com/Decision-Driven-Development/testable-io/commit/19f2bbfb82ff810a5f7e3403130359b5ba373c10)), closes [#2](https://github.com/Decision-Driven-Development/testable-io/issues/2)
+* store all the created responses in memory ([7b7a538](https://github.com/Decision-Driven-Development/testable-io/commit/7b7a5387eb6bfbc564f7d8cbe287b4f3a504f489)), closes [#2](https://github.com/Decision-Driven-Development/testable-io/issues/2)
+
 ### [0.1.1](https://github.com/Decision-Driven-Development/testable-io/compare/v0.1.0...v0.1.1) (2025-04-24)
 
 
