@@ -26,6 +26,7 @@ package ewc.utilities.testableio.core;
 
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
 
 /**
  * This class provides configured responses for a single I/O operation stub. The responses could
@@ -96,6 +97,24 @@ public class SingleQueryResponses {
      * @return The next configured response.
      */
     public GenericResponse next() {
+        final GenericResponse value = responseUsing(this.index::getAndIncrement);
+        if (value.contents() instanceof RuntimeException runtimeException) {
+            throw runtimeException;
+        }
+        return value;
+    }
+
+    /**
+     * Returns the next configured response without "removing" it from responses queue.
+     * If the queue is already exhausted, a {@link NoSuchElementException} will be thrown.
+     *
+     * @return The next configured response.
+     */
+    public GenericResponse peek() {
+        return responseUsing(this.index::currentValue);
+    }
+
+    private GenericResponse responseUsing(Supplier<Integer> counter) {
         if (this.values == null) {
             throw new IllegalStateException("No response to send");
         }
@@ -104,11 +123,7 @@ public class SingleQueryResponses {
                 String.format("No more configured responses for %s", this.description)
             );
         }
-        final GenericResponse value = this.values[this.index.getAndIncrement()];
-        if (value.contents() instanceof RuntimeException runtimeException) {
-            throw runtimeException;
-        }
-        return value;
+        return this.values[counter.get()];
     }
 
     /**

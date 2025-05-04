@@ -59,4 +59,12 @@ class SingleClientStubs {
         }
         return response;
     }
+
+    public Map<QueryId, GenericResponse> currentActive() {
+        final Map<QueryId, GenericResponse> active = new HashMap<>(this.stubs.size());
+        this.stubs.keySet().forEach(query -> {
+            active.put(query, this.stubs.get(query).peek());
+        });
+        return active;
+    }
 }

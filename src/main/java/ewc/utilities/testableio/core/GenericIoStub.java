@@ -52,9 +52,7 @@ public class GenericIoStub {
     private final Set<Stub> stored = new HashSet<>();
 
     public GenericResponse nextResponseFor(final ClientId client, final QueryId query) {
-        return this.stubs
-            .getOrDefault(client, this.stubs.get(GenericIoStub.COMMON_CLIENT))
-            .nextResponseFor(query);
+        return this.stubsForClient(client).nextResponseFor(query);
     }
 
     /**
@@ -109,6 +107,18 @@ public class GenericIoStub {
                 });
     }
 
+    public Map<QueryId, GenericResponse> getCurrentCommonStubs() {
+        return this.stubs.get(GenericIoStub.COMMON_CLIENT).currentActive();
+    }
+
+    public Map<QueryId, GenericResponse> getCurrentClientStubs(final ClientId client) {
+        final Map<QueryId, GenericResponse> result = new HashMap<>(
+            this.stubs.get(GenericIoStub.COMMON_CLIENT).currentActive()
+        );
+        result.putAll(this.stubsForClient(client).currentActive());
+        return result;
+    }
+
     /**
      * Sets the active response for a specific client.
      *
@@ -116,7 +126,8 @@ public class GenericIoStub {
      * @param stub The response to be set as active.
      */
     private void setActiveResponse(final ClientId client, final Stub stub) {
-        this.getStubsFor(client).setSingleResponseFor(stub.query(), stub.response());
+        this.stubs.putIfAbsent(client, new SingleClientStubs());
+        this.stubs.get(client).setSingleResponseFor(stub.query(), stub.response());
     }
 
     /**
@@ -127,11 +138,10 @@ public class GenericIoStub {
      */
     private void addStub(final Stub stub, final ClientId client) {
         this.stored.add(stub);
-        this.getStubsFor(client).setSingleResponseFor(stub.query(), stub.response());
+        this.setActiveResponse(client, stub);
     }
 
-    private SingleClientStubs getStubsFor(final ClientId client) {
-        this.stubs.putIfAbsent(client, new SingleClientStubs());
-        return this.stubs.get(client);
+    private SingleClientStubs stubsForClient(ClientId client) {
+        return this.stubs.getOrDefault(client, this.stubs.get(GenericIoStub.COMMON_CLIENT));
     }
 }

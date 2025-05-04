@@ -25,6 +25,7 @@
 package ewc.utilities.testableio.external;
 
 import ewc.utilities.testableio.core.*;
+import java.util.Map;
 import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,10 +44,11 @@ final class EndToEndTest {
     public static final ClientId ANY_CLIENT = new ClientId("any client");
     public static final ClientId VIP_CLIENT = new ClientId("VIP client");
     public static final ClientId NEW_CLIENT = new ClientId("new client");
+    public static final IllegalStateException NO_SUCH_PAGE_EXCEPTION = new IllegalStateException("no such page");
     public static final GenericResponse DEFAULT_HOME_PAGE = new GenericResponse("html for the home page");
     public static final GenericResponse DEFAULT_NUMBER_PAGE = new GenericResponse(1000L);
-    public static final IllegalStateException NO_SUCH_PAGE = new IllegalStateException("no such page");
     public static final GenericResponse VIP_HOME_PAGE = new GenericResponse("VIP home page");
+    public static final GenericResponse NO_SUCH_PAGE = new GenericResponse(NO_SUCH_PAGE_EXCEPTION);
     private GenericIoStub target;
 
     @BeforeEach
@@ -57,7 +59,7 @@ final class EndToEndTest {
                 .withContents(DEFAULT_HOME_PAGE)
                 .withResponseId("home"),
             Stub.forQueryId("non-existing")
-                .withContents(new GenericResponse(NO_SUCH_PAGE))
+                .withContents(NO_SUCH_PAGE)
                 .withResponseId("non-existing"),
             Stub.forQueryId("number")
                 .withContents(DEFAULT_NUMBER_PAGE)
@@ -73,9 +75,9 @@ final class EndToEndTest {
         when(ANY_CLIENT).requests(NUMBER_PAGE).then(DEFAULT_NUMBER_PAGE);
         when(NEW_CLIENT).requests(NUMBER_PAGE).then(DEFAULT_NUMBER_PAGE);
         when(VIP_CLIENT).requests(NUMBER_PAGE).then(DEFAULT_NUMBER_PAGE);
-        when(ANY_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE);
-        when(NEW_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE);
-        when(VIP_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE);
+        when(ANY_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE_EXCEPTION);
+        when(NEW_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE_EXCEPTION);
+        when(VIP_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE_EXCEPTION);
     }
 
     @Test
@@ -106,6 +108,25 @@ final class EndToEndTest {
         when(ANY_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
     }
 
+    @Test
+    void shouldReturnCorrectCommonState() {
+        final Map<QueryId, GenericResponse> actual = this.target.getCurrentCommonStubs();
+        Assertions.assertThat(actual)
+            .containsEntry(HOME_PAGE, DEFAULT_HOME_PAGE)
+            .containsEntry(NUMBER_PAGE, DEFAULT_NUMBER_PAGE)
+            .containsEntry(MISSING_PAGE, NO_SUCH_PAGE);
+    }
+
+    @Test
+    void shouldCombineCommonAndClientCurrentState() {
+        final Stub newHome = Stub.forQueryId("home").withContents(VIP_HOME_PAGE).withResponseId("home");
+        this.target.addClientStub(newHome, VIP_CLIENT);
+        final Map<QueryId, GenericResponse> actual = this.target.getCurrentClientStubs(VIP_CLIENT);
+        Assertions.assertThat(actual)
+            .containsEntry(HOME_PAGE, VIP_HOME_PAGE)
+            .containsEntry(NUMBER_PAGE, DEFAULT_NUMBER_PAGE)
+            .containsEntry(MISSING_PAGE, NO_SUCH_PAGE);
+    }
 
     private When when(ClientId client) {
         return new When(client);
