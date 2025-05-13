@@ -26,6 +26,7 @@ package ewc.utilities.testableio.core;
 
 import java.util.Set;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -42,33 +43,37 @@ final class GenericIoStubTest {
 
     public static final QueryId TEST_REQUEST = new QueryId("test_request");
 
+    private GenericIoStub target;
+
+    @BeforeEach
+    void setUp() {
+        this.target = new GenericIoStub();
+    }
+
     @Test
     void createDefaultStub() {
-        final GenericIoStub target = new GenericIoStub();
-        target.addCommonStub(Mocks.defaultStub());
-        Assertions.assertThat(target.nextResponseFor(ANY_CLIENT, TEST_REQUEST))
+        this.target.addCommonStub(Mocks.defaultStub());
+        Assertions.assertThat(this.target.nextResponseFor(ANY_CLIENT, TEST_REQUEST))
             .isEqualTo(Mocks.defaultResponse());
-        Assertions.assertThat(target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
+        Assertions.assertThat(this.target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
             .isEqualTo(Mocks.defaultResponse());
     }
 
     @Test
     void createInfiniteStubForSpecificClient() {
-        final GenericIoStub target = new GenericIoStub();
-        target.addCommonStub(Mocks.defaultStub());
-        target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
-        Assertions.assertThat(target.nextResponseFor(ANY_CLIENT, TEST_REQUEST))
+        this.target.addCommonStub(Mocks.defaultStub());
+        this.target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
+        Assertions.assertThat(this.target.nextResponseFor(ANY_CLIENT, TEST_REQUEST))
             .isEqualTo(Mocks.defaultResponse());
-        Assertions.assertThat(target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
+        Assertions.assertThat(this.target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
             .isEqualTo(Mocks.emptyResponse());
     }
 
     @Test
     void shouldAddResponseToStoredResponses() {
-        final GenericIoStub target = new GenericIoStub();
-        target.addCommonStub(Mocks.defaultStub());
-        target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
-        final Set<Stub> stubs = target.getResponsesFor("test_request");
+        this.target.addCommonStub(Mocks.defaultStub());
+        this.target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
+        final Set<Stub> stubs = this.target.getResponsesFor("test_request");
         Assertions.assertThat(stubs.stream().map(Stub::name).toList())
             .isNotEmpty()
             .containsExactlyInAnyOrder(
@@ -79,60 +84,66 @@ final class GenericIoStubTest {
 
     @Test
     void shouldAddTheExceptionAsTheResponse() {
-        final GenericIoStub target = new GenericIoStub();
-        target.addCommonStub(Mocks.errorStub());
+        this.target.addCommonStub(Mocks.errorStub());
         Assertions
-            .assertThatThrownBy(() -> target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
+            .assertThatThrownBy(() -> this.target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
             .isInstanceOf(RuntimeException.class)
             .hasMessage("test error");
     }
 
     @Test
     void shouldReturnSpecificClientStubsWhenNoDefaultStubsConfigured() {
-        final GenericIoStub target = new GenericIoStub();
-        target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
-        Assertions.assertThatNoException().isThrownBy(() -> target.nextResponseFor(VIP_CLIENT, TEST_REQUEST));
+        this.target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
+        Assertions.assertThatNoException().isThrownBy(() -> this.target.nextResponseFor(VIP_CLIENT, TEST_REQUEST));
     }
 
     @Test
     void shouldActivateOneOfStoredResponses() {
-        final GenericIoStub target = new GenericIoStub();
-        target.addCommonStub(Mocks.defaultStub());
-        target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
-        Assertions.assertThat(target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
+        this.target.addCommonStub(Mocks.defaultStub());
+        this.target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
+        Assertions.assertThat(this.target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
             .isEqualTo(Mocks.emptyResponse());
-        target.setActiveResponse(
+        this.target.setActiveResponse(
             GenericIoStubTest.VIP_CLIENT,
             Mocks.defaultStub().query(),
             Mocks.defaultStub().name()
         );
-        Assertions.assertThat(target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
+        Assertions.assertThat(this.target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
             .isEqualTo(Mocks.defaultResponse());
     }
 
     @Test
     void shouldActivateStoredResponseForNewClient() {
-        final GenericIoStub target = new GenericIoStub();
-        target.addCommonStub(Mocks.defaultStub());
-        target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
-        Assertions.assertThat(target.nextResponseFor(NEW_CLIENT, TEST_REQUEST))
+        this.target.addCommonStub(Mocks.defaultStub());
+        this.target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
+        Assertions.assertThat(this.target.nextResponseFor(NEW_CLIENT, TEST_REQUEST))
             .isEqualTo(Mocks.defaultResponse());
-        target.setActiveResponse(
+        this.target.setActiveResponse(
             NEW_CLIENT,
             Mocks.emptyStub().query(),
             Mocks.emptyStub().name()
         );
-        Assertions.assertThat(target.nextResponseFor(NEW_CLIENT, TEST_REQUEST))
+        Assertions.assertThat(this.target.nextResponseFor(NEW_CLIENT, TEST_REQUEST))
             .isEqualTo(Mocks.emptyResponse());
     }
 
     @Test
     void shouldReturnDefaultResponsesForUnconfiguredClientQueries() {
-        final GenericIoStub target = new GenericIoStub();
-        target.addCommonStub(Mocks.defaultStub());
-        target.addCommonStub(Mocks.anotherQueryStub());
-        target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
-        Assertions.assertThat(target.nextResponseFor(VIP_CLIENT, new QueryId("another_request")))
+        this.target.addCommonStub(Mocks.defaultStub());
+        this.target.addCommonStub(Mocks.anotherQueryStub());
+        this.target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
+        Assertions.assertThat(this.target.nextResponseFor(VIP_CLIENT, new QueryId("another_request")))
+            .isEqualTo(Mocks.defaultResponse());
+    }
+
+    @Test
+    void shouldResetStubsForClient() {
+        this.target.addCommonStub(Mocks.defaultStub());
+        this.target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
+        Assertions.assertThat(this.target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
+            .isEqualTo(Mocks.emptyResponse());
+        this.target.resetStubsFor(GenericIoStubTest.VIP_CLIENT);
+        Assertions.assertThat(this.target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
             .isEqualTo(Mocks.defaultResponse());
     }
 }

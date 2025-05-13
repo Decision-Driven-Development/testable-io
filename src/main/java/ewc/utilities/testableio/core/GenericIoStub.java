@@ -119,6 +119,10 @@ public class GenericIoStub {
         return result;
     }
 
+    public void resetStubsFor(ClientId client) {
+        this.stubs.remove(client);
+    }
+
     /**
      * Sets the active response for a specific client.
      *
