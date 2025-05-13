@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.2.1](https://github.com/Decision-Driven-Development/testable-io/compare/v0.2.0...v0.2.1) (2025-05-13)
+
+
+### Features
+
+* ability to reset stubs for specific client ([e7ee31d](https://github.com/Decision-Driven-Development/testable-io/commit/e7ee31d8014db8f12eb51fc224e39ab9d7efd23b)), closes [#6](https://github.com/Decision-Driven-Development/testable-io/issues/6)
+
+
+### Bug Fixes
+
+* return default responses extended with specific client responses ([9ff9c89](https://github.com/Decision-Driven-Development/testable-io/commit/9ff9c89fbd604c3b8c7d84ea2d3faca26678ab7e)), closes [#7](https://github.com/Decision-Driven-Development/testable-io/issues/7)
+
 ## [0.2.0](https://github.com/Decision-Driven-Development/testable-io/compare/v0.1.1...v0.2.0) (2025-05-04)
 
 
