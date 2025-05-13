@@ -24,9 +24,9 @@
 
 package ewc.utilities.testableio.core;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.NoSuchElementException;
-import javax.management.Query;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 

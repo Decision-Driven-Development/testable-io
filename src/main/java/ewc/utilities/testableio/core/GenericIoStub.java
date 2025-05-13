@@ -52,7 +52,7 @@ public class GenericIoStub {
     private final Set<Stub> stored = new HashSet<>();
 
     public GenericResponse nextResponseFor(final ClientId client, final QueryId query) {
-        return this.stubsForClient(client).nextResponseFor(query);
+        return this.stubsActiveFor(client).nextResponseFor(query);
     }
 
     /**
@@ -113,9 +113,9 @@ public class GenericIoStub {
 
     public Map<QueryId, GenericResponse> getCurrentClientStubs(final ClientId client) {
         final Map<QueryId, GenericResponse> result = new HashMap<>(
-            this.stubs.get(GenericIoStub.COMMON_CLIENT).currentActive()
+            this.stubs.getOrDefault(GenericIoStub.COMMON_CLIENT, new SingleClientStubs()).currentActive()
         );
-        result.putAll(this.stubsForClient(client).currentActive());
+        result.putAll(this.stubsExplicitlyConfiguredFor(client).currentActive());
         return result;
     }
 
@@ -141,7 +141,16 @@ public class GenericIoStub {
         this.setActiveResponse(client, stub);
     }
 
-    private SingleClientStubs stubsForClient(ClientId client) {
+    private SingleClientStubs stubsExplicitlyConfiguredFor(ClientId client) {
         return this.stubs.getOrDefault(client, this.stubs.get(GenericIoStub.COMMON_CLIENT));
+    }
+
+    private SingleClientStubs stubsActiveFor(ClientId client) {
+        final Map<QueryId, GenericResponse> clientStubs = this.getCurrentClientStubs(client);
+        Map<QueryId, SingleQueryResponses> result = new HashMap<>();
+        clientStubs.forEach((query, response) -> {
+            result.put(query, new SingleQueryResponses(query.query(), response));
+        });
+        return new SingleClientStubs(result);
     }
 }

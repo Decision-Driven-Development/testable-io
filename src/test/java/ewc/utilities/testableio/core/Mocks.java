@@ -89,4 +89,10 @@ public final class Mocks {
             .withResponseId("default_response");
     }
 
+    static Stub anotherQueryStub() {
+        return Stub
+            .forQueryId("another_request")
+            .withContents(Mocks.defaultResponse())
+            .withResponseId("another_response");
+    }
 }

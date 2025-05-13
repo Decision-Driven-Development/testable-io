@@ -80,11 +80,18 @@ final class GenericIoStubTest {
     @Test
     void shouldAddTheExceptionAsTheResponse() {
         final GenericIoStub target = new GenericIoStub();
-        target.addClientStub(Mocks.errorStub(), GenericIoStubTest.VIP_CLIENT);
+        target.addCommonStub(Mocks.errorStub());
         Assertions
             .assertThatThrownBy(() -> target.nextResponseFor(VIP_CLIENT, TEST_REQUEST))
             .isInstanceOf(RuntimeException.class)
             .hasMessage("test error");
+    }
+
+    @Test
+    void shouldReturnSpecificClientStubsWhenNoDefaultStubsConfigured() {
+        final GenericIoStub target = new GenericIoStub();
+        target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
+        Assertions.assertThatNoException().isThrownBy(() -> target.nextResponseFor(VIP_CLIENT, TEST_REQUEST));
     }
 
     @Test
@@ -117,5 +124,15 @@ final class GenericIoStubTest {
         );
         Assertions.assertThat(target.nextResponseFor(NEW_CLIENT, TEST_REQUEST))
             .isEqualTo(Mocks.emptyResponse());
+    }
+
+    @Test
+    void shouldReturnDefaultResponsesForUnconfiguredClientQueries() {
+        final GenericIoStub target = new GenericIoStub();
+        target.addCommonStub(Mocks.defaultStub());
+        target.addCommonStub(Mocks.anotherQueryStub());
+        target.addClientStub(Mocks.emptyStub(), GenericIoStubTest.VIP_CLIENT);
+        Assertions.assertThat(target.nextResponseFor(VIP_CLIENT, new QueryId("another_request")))
+            .isEqualTo(Mocks.defaultResponse());
     }
 }

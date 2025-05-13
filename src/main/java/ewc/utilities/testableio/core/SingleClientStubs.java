@@ -38,7 +38,15 @@ class SingleClientStubs {
     /**
      * The storage for all the configured responses.
      */
-    private final Map<QueryId, SingleQueryResponses> stubs = new HashMap<>();
+    private final Map<QueryId, SingleQueryResponses> stubs;
+
+    SingleClientStubs() {
+        this(new HashMap<>());
+    }
+
+    SingleClientStubs(Map<QueryId, SingleQueryResponses> stubs) {
+        this.stubs = stubs;
+    }
 
     public void setSingleResponseFor(final QueryId query, final GenericResponse response) {
         this.stubs.put(query, new SingleQueryResponses(query.query(), response));
