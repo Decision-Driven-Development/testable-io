@@ -52,7 +52,7 @@ final class StubbedQueryTest {
     void shouldReturnJustOneResponseIfItIsAnArrayWithOneElement() {
         final StubbedQuery responses = new StubbedQuery(
             "array with one element",
-            new StubbedResponse[]{StubbedQueryTest.getGenericResponse()}
+            new RawResponse[]{StubbedQueryTest.getGenericResponse()}
         );
         Assertions.assertThat(responses.next().asString())
             .isEqualTo("sample response");
@@ -65,7 +65,7 @@ final class StubbedQueryTest {
     void shouldThrowAnExceptionThatIsSetAsAResponse() {
         final StubbedQuery responses = new StubbedQuery(
             "exception response",
-            new StubbedResponse(new ArithmeticException("test exception"))
+            new RawResponse(new ArithmeticException("test exception"))
         );
         Assertions.assertThatThrownBy(responses::next)
             .isInstanceOf(ArithmeticException.class)
@@ -76,8 +76,8 @@ final class StubbedQueryTest {
     void shouldReturnAllTheSpecifiedResponsesInOrder() {
         final StubbedQuery responses = new StubbedQuery(
             "multiple responses",
-            new StubbedResponse("response 1"),
-            new StubbedResponse(new ArithmeticException("test exception"))
+            new RawResponse("response 1"),
+            new RawResponse(new ArithmeticException("test exception"))
         );
         Assertions.assertThat(responses.next().asString())
             .isEqualTo("response 1");
@@ -89,8 +89,8 @@ final class StubbedQueryTest {
             .hasMessageContaining("No more configured responses for multiple responses");
     }
 
-    private static StubbedResponse getGenericResponse() {
-        return new StubbedResponse(
+    private static RawResponse getGenericResponse() {
+        return new RawResponse(
             ResponseId.random(),
             "sample response",
             Map.of("http_response_code", 200, "x-header", "12345")

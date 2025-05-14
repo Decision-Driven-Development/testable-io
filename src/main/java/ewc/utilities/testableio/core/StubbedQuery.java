@@ -45,7 +45,7 @@ public class StubbedQuery {
     /**
      * The array of responses to be returned sequentially.
      */
-    private final StubbedResponse[] responses;
+    private final RawResponse[] responses;
 
     /**
      * The identity of this instance. Used primarily for identifying the
@@ -59,8 +59,8 @@ public class StubbedQuery {
      * @param stub The short description of this stub instance.
      * @param value The response to be returned forever.
      */
-    public StubbedQuery(final String stub, final StubbedResponse value) {
-        this(stub, new StubbedResponse[]{value}, new ConstantIndex());
+    public StubbedQuery(final String stub, final RawResponse value) {
+        this(stub, new RawResponse[]{value}, new ConstantIndex());
     }
 
     /**
@@ -70,7 +70,7 @@ public class StubbedQuery {
      * @param stub The short description of this stub instance.
      * @param responses The array of responses to be returned sequentially.
      */
-    public StubbedQuery(final String stub, final StubbedResponse... responses) {
+    public StubbedQuery(final String stub, final RawResponse... responses) {
         this(stub, responses, new IncrementalIndex());
     }
 
@@ -82,7 +82,7 @@ public class StubbedQuery {
      * @param index The counter providing the index of the next response to be returned.
      */
     private StubbedQuery(
-        final String stub, final StubbedResponse[] responses, final Counter index
+        final String stub, final RawResponse[] responses, final Counter index
     ) {
         this.index = index;
         this.responses = responses;
@@ -96,7 +96,7 @@ public class StubbedQuery {
      *
      * @return The next configured response.
      */
-    public StubbedResponse next() {
+    public RawResponse next() {
         return responseUsing(this.index::getAndIncrement).evaluate();
     }
 
@@ -106,11 +106,11 @@ public class StubbedQuery {
      *
      * @return The next configured response.
      */
-    public StubbedResponse peek() {
+    public RawResponse peek() {
         return responseUsing(this.index::currentValue);
     }
 
-    private StubbedResponse responseUsing(Supplier<Integer> counter) {
+    private RawResponse responseUsing(Supplier<Integer> counter) {
         if (this.responses == null) {
             throw new IllegalStateException("No response to send");
         }
