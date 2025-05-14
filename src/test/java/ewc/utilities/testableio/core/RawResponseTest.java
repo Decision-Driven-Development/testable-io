@@ -30,16 +30,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 /**
- * Unit-tests for the {@link StubbedResponse} class.
+ * Unit-tests for the {@link RawResponse} class.
  *
  * @since 0.1
  */
-final class StubbedResponseTest {
-    private StubbedResponse target;
+final class RawResponseTest {
+    private RawResponse target;
 
     @BeforeEach
     void setUp() {
-        this.target = new StubbedResponse(
+        this.target = new RawResponse(
                 new ResponseId("test"),
                 "test",
                 Map.of("http_response_code", 200, "x-header", "12345")

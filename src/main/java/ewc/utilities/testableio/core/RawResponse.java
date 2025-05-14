@@ -27,7 +27,6 @@ package ewc.utilities.testableio.core;
 
 import java.util.Map;
 import java.util.function.BiFunction;
-import java.util.function.Function;
 import lombok.EqualsAndHashCode;
 import lombok.NonNull;
 
@@ -37,7 +36,7 @@ import lombok.NonNull;
  * @since 0.3
  */
 @EqualsAndHashCode
-public class StubbedResponse {
+public class RawResponse {
     /**
      * Main content of the stubbed response. Cannot be null.
      */
@@ -60,7 +59,7 @@ public class StubbedResponse {
      * @param content The main content of the stubbed response. Cannot be null.
      * @param metadata The metadata associated with the stubbed response. Cannot be null.
      */
-    public StubbedResponse(
+    public RawResponse(
         @NonNull final ResponseId id,
         @NonNull final Object content,
         @NonNull final Map<String, Object> metadata
@@ -70,11 +69,11 @@ public class StubbedResponse {
         this.id = id;
     }
 
-    public StubbedResponse(@NonNull final Object content) {
+    public RawResponse(@NonNull final Object content) {
         this(ResponseId.random(), content, Map.of());
     }
 
-    public StubbedResponse evaluate() {
+    public RawResponse evaluate() {
         if (this.content instanceof RuntimeException exception) {
             throw exception;
         }
@@ -84,7 +83,7 @@ public class StubbedResponse {
     public <R> R convertedUsing(BiFunction<Object, Map<String, Object>, R> converter) {
         return converter.apply(this.content, this.metadata);
     }
-    
+
     public String asString() {
         return this.convertedUsing((content, metadata) -> content.toString());
     }
