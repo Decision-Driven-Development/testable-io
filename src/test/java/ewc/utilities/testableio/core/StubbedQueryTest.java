@@ -37,24 +37,24 @@ import org.junit.jupiter.api.Test;
 final class StubbedQueryTest {
     @Test
     void shouldReturnTheSameResponseForeverIfItIsASingleResponse() {
-        final StubbedQuery responses = new StubbedQuery(
+        final StubbedQuery<String> responses = StubbedQuery.from(
             "single response",
             StubbedQueryTest.getGenericResponse()
         );
         Assertions.assertThat(responses.next())
             .isEqualTo(responses.next())
             .isEqualTo(responses.next());
-        Assertions.assertThat(responses.next().asString())
+        Assertions.assertThat(responses.next())
             .isEqualTo("sample response");
     }
 
     @Test
     void shouldReturnJustOneResponseIfItIsAnArrayWithOneElement() {
-        final StubbedQuery responses = new StubbedQuery(
+        final StubbedQuery<String> responses = StubbedQuery.from(
             "array with one element",
-            new RawResponse[]{StubbedQueryTest.getGenericResponse()}
+            new StubbedResponse[]{StubbedQueryTest.getGenericResponse()}
         );
-        Assertions.assertThat(responses.next().asString())
+        Assertions.assertThat(responses.next())
             .isEqualTo("sample response");
         Assertions.assertThatThrownBy(responses::next)
             .isInstanceOf(NoSuchElementException.class)
@@ -63,9 +63,9 @@ final class StubbedQueryTest {
 
     @Test
     void shouldThrowAnExceptionThatIsSetAsAResponse() {
-        final StubbedQuery responses = new StubbedQuery(
+        final StubbedQuery<String> responses = StubbedQuery.from(
             "exception response",
-            new RawResponse(new ArithmeticException("test exception"))
+            StubbedResponse.from(new ArithmeticException("test exception"))
         );
         Assertions.assertThatThrownBy(responses::next)
             .isInstanceOf(ArithmeticException.class)
@@ -74,12 +74,14 @@ final class StubbedQueryTest {
 
     @Test
     void shouldReturnAllTheSpecifiedResponsesInOrder() {
-        final StubbedQuery responses = new StubbedQuery(
+        final StubbedQuery<String> responses = StubbedQuery.from(
             "multiple responses",
-            new RawResponse("response 1"),
-            new RawResponse(new ArithmeticException("test exception"))
+            new StubbedResponse[]{
+                StubbedResponse.from("response 1"),
+                StubbedResponse.from(new ArithmeticException("test exception"))
+            }
         );
-        Assertions.assertThat(responses.next().asString())
+        Assertions.assertThat(responses.next())
             .isEqualTo("response 1");
         Assertions.assertThatThrownBy(responses::next)
             .isInstanceOf(ArithmeticException.class)
@@ -89,11 +91,14 @@ final class StubbedQueryTest {
             .hasMessageContaining("No more configured responses for multiple responses");
     }
 
-    private static RawResponse getGenericResponse() {
-        return new RawResponse(
-            ResponseId.random(),
-            "sample response",
-            Map.of("http_response_code", 200, "x-header", "12345")
+    private static StubbedResponse getGenericResponse() {
+        return new StubbedResponse(
+            new RawResponse(
+                ResponseId.random(),
+                "sample response",
+                Map.of("http_response_code", 200, "x-header", "12345")
+            ),
+            0
         );
     }
 }

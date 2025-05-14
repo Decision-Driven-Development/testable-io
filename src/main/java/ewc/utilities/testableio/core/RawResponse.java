@@ -73,18 +73,10 @@ public class RawResponse {
         this(ResponseId.random(), content, Map.of());
     }
 
-    public RawResponse evaluate() {
+    public <R> R convertedUsing(BiFunction<Object, Map<String, Object>, R> converter) {
         if (this.content instanceof RuntimeException exception) {
             throw exception;
         }
-        return this;
-    }
-
-    public <R> R convertedUsing(BiFunction<Object, Map<String, Object>, R> converter) {
         return converter.apply(this.content, this.metadata);
-    }
-
-    public String asString() {
-        return this.convertedUsing((content, metadata) -> content.toString());
     }
 }
