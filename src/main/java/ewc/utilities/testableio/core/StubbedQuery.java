@@ -24,8 +24,10 @@
 
 package ewc.utilities.testableio.core;
 
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 /**
@@ -36,7 +38,7 @@ import java.util.function.Supplier;
  *
  * @since 0.3
  */
-public class StubbedQuery {
+public class StubbedQuery<T> {
     /**
      * The counter providing the index of the next response to be returned.
      */
@@ -45,7 +47,7 @@ public class StubbedQuery {
     /**
      * The array of responses to be returned sequentially.
      */
-    private final RawResponse[] responses;
+    private final StubbedResponse[] responses;
 
     /**
      * The identity of this instance. Used primarily for identifying the
@@ -53,14 +55,32 @@ public class StubbedQuery {
      */
     private final QueryId id;
 
+    private final BiFunction<Object, Map<String, Object>, T> converter;
+
+    private static final BiFunction<Object, Map<String, Object>, String> STRING_CONVERTER =
+        (content, metadata) -> content.toString();
+
+    static StubbedQuery<String> from(final String stub, final StubbedResponse value) {
+        return new StubbedQuery<>(stub, new StubbedResponse[]{value}, STRING_CONVERTER, new ConstantIndex());
+    }
+
+    static StubbedQuery<String> from(final String stub, final StubbedResponse[] responses) {
+        return new StubbedQuery<>(stub, responses, STRING_CONVERTER, new IncrementalIndex());
+    }
+
     /**
      * Single response constructor. It means that the same response will be returned forever.
      *
      * @param stub The short description of this stub instance.
      * @param value The response to be returned forever.
+     * @param converter The function that converts the {@link RawResponse} to the desired type.
      */
-    public StubbedQuery(final String stub, final RawResponse value) {
-        this(stub, new RawResponse[]{value}, new ConstantIndex());
+    public StubbedQuery(
+        final String stub,
+        final StubbedResponse value,
+        final BiFunction<Object, Map<String, Object>, T> converter
+    ) {
+        this(stub, new StubbedResponse[]{value}, converter, new ConstantIndex());
     }
 
     /**
@@ -69,9 +89,14 @@ public class StubbedQuery {
      *
      * @param stub The short description of this stub instance.
      * @param responses The array of responses to be returned sequentially.
+     * @param converter The function that converts the {@link RawResponse} to the desired type.
      */
-    public StubbedQuery(final String stub, final RawResponse... responses) {
-        this(stub, responses, new IncrementalIndex());
+    public StubbedQuery(
+        final String stub,
+        final StubbedResponse[] responses,
+        final BiFunction<Object, Map<String, Object>, T> converter
+    ) {
+        this(stub, responses, converter, new IncrementalIndex());
     }
 
     /**
@@ -79,14 +104,19 @@ public class StubbedQuery {
      *
      * @param stub The short description of this stub instance.
      * @param responses The array of responses to be returned sequentially.
+     * @param converter The function that converts the {@link RawResponse} to the desired type.
      * @param index The counter providing the index of the next response to be returned.
      */
     private StubbedQuery(
-        final String stub, final RawResponse[] responses, final Counter index
+        final String stub,
+        final StubbedResponse[] responses,
+        BiFunction<Object, Map<String, Object>, T> converter,
+        final Counter index
     ) {
-        this.index = index;
-        this.responses = responses;
         this.id = new QueryId(stub);
+        this.responses = responses;
+        this.converter = converter;
+        this.index = index;
     }
 
     /**
@@ -96,8 +126,8 @@ public class StubbedQuery {
      *
      * @return The next configured response.
      */
-    public RawResponse next() {
-        return responseUsing(this.index::getAndIncrement).evaluate();
+    public T next() {
+        return responseUsing(this.index::getAndIncrement).convertUsing(this.converter);
     }
 
     /**
@@ -106,11 +136,11 @@ public class StubbedQuery {
      *
      * @return The next configured response.
      */
-    public RawResponse peek() {
+    public StubbedResponse peek() {
         return responseUsing(this.index::currentValue);
     }
 
-    private RawResponse responseUsing(Supplier<Integer> counter) {
+    private StubbedResponse responseUsing(Supplier<Integer> counter) {
         if (this.responses == null) {
             throw new IllegalStateException("No response to send");
         }
