@@ -74,9 +74,13 @@ public class RawResponse {
     }
 
     public <R> R convertedUsing(BiFunction<Object, Map<String, Object>, R> converter) {
+        return converter.apply(this.content, this.metadata);
+    }
+
+    public RawResponse tryThrowing() {
         if (this.content instanceof RuntimeException exception) {
             throw exception;
         }
-        return converter.apply(this.content, this.metadata);
+        return this;
     }
 }

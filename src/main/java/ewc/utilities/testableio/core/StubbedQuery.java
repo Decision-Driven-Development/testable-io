@@ -121,13 +121,19 @@ public class StubbedQuery<T> {
 
     /**
      * Returns the next response in the iterator. If the iterator has no more
-     * responses, a {@link NoSuchElementException} will be thrown. If the response
-     * contains a RuntimeException, it will be thrown immediately.
+     * responses, a {@link NoSuchElementException} will be thrown. After the next response is
+     * fetched, its delay comes into play. After the amount of delay milliseconds passes,
+     * the response is converted to the desired type (using the {@link StubbedQuery#converter}
+     * function) and then returned. If the response contains a RuntimeException, it will be thrown
+     * right after delay, without type conversion attempt.
      *
      * @return The next configured response.
      */
     public T next() {
-        return responseUsing(this.index::getAndIncrement).convertUsing(this.converter);
+        return responseUsing(this.index::getAndIncrement)
+            .waitForDelay()
+            .tryThrowing()
+            .convertedUsing(this.converter);
     }
 
     /**
