@@ -1,0 +1,188 @@
+/*
+ * MIT License
+ *
+ * Copyright (c) 2025 Eugene Terekhov
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to deal
+ * in the Software without restriction, including without limitation the rights
+ * to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+ * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+ * SOFTWARE.
+ */
+
+package ewc.utilities.testableio.core;
+
+import java.util.NoSuchElementException;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Supplier;
+
+/**
+ * This class provides configured responses for a single I/O operation stub. The responses could
+ * be in a form of a single response or an array of responses. The single response will be returned
+ * forever, while the array of responses will be returned sequentially until it runs out of
+ * responses. In such case, a {@link NoSuchElementException} will be thrown.
+ *
+ * @since 0.3
+ */
+public class StubbedQuery {
+    /**
+     * The counter providing the index of the next response to be returned.
+     */
+    private final Counter index;
+
+    /**
+     * The array of responses to be returned sequentially.
+     */
+    private final StubbedResponse[] responses;
+
+    /**
+     * The identity of this instance. Used primarily for identifying the
+     * stub that ran out of configured responses.
+     */
+    private final QueryId id;
+
+    /**
+     * Single response constructor. It means that the same response will be returned forever.
+     *
+     * @param stub The short description of this stub instance.
+     * @param value The response to be returned forever.
+     */
+    public StubbedQuery(final String stub, final StubbedResponse value) {
+        this(stub, new StubbedResponse[]{value}, new ConstantIndex());
+    }
+
+    /**
+     * Array of responses constructor. It means that the responses will be returned sequentially
+     * until the array runs out of responses.
+     *
+     * @param stub The short description of this stub instance.
+     * @param responses The array of responses to be returned sequentially.
+     */
+    public StubbedQuery(final String stub, final StubbedResponse... responses) {
+        this(stub, responses, new IncrementalIndex());
+    }
+
+    /**
+     * Primary constructor.
+     *
+     * @param stub The short description of this stub instance.
+     * @param responses The array of responses to be returned sequentially.
+     * @param index The counter providing the index of the next response to be returned.
+     */
+    private StubbedQuery(
+        final String stub, final StubbedResponse[] responses, final Counter index
+    ) {
+        this.index = index;
+        this.responses = responses;
+        this.id = new QueryId(stub);
+    }
+
+    /**
+     * Returns the next response in the iterator. If the iterator has no more
+     * responses, a {@link NoSuchElementException} will be thrown. If the response
+     * contains a RuntimeException, it will be thrown immediately.
+     *
+     * @return The next configured response.
+     */
+    public StubbedResponse next() {
+        return responseUsing(this.index::getAndIncrement).evaluate();
+    }
+
+    /**
+     * Returns the next configured response without "removing" it from responses queue.
+     * If the queue is already exhausted, a {@link NoSuchElementException} will be thrown.
+     *
+     * @return The next configured response.
+     */
+    public StubbedResponse peek() {
+        return responseUsing(this.index::currentValue);
+    }
+
+    private StubbedResponse responseUsing(Supplier<Integer> counter) {
+        if (this.responses == null) {
+            throw new IllegalStateException("No response to send");
+        }
+        if (this.index.isTheLast(this.responses.length)) {
+            throw new NoSuchElementException(
+                String.format("No more configured responses for %s", this.id.query())
+            );
+        }
+        return this.responses[counter.get()];
+    }
+
+    /**
+     * The value of the counter. This value is used to determine the index of the response to
+     * be returned.
+     *
+     * @since 0.1
+     */
+    private interface Counter {
+        /**
+         * The value of the counter. This value is used to determine the index of the response to
+         * be returned.
+         *
+         * @return The current value of the counter.
+         */
+        int currentValue();
+
+        /**
+         * Increments the counter by one. This method is used to move to the next response in the
+         * array.
+         *
+         * @return The value of the counter before incrementing.
+         */
+        int getAndIncrement();
+
+        /**
+         * Checks if the current value of the counter is the last one in the array.
+         *
+         * @param size The size of the array of responses.
+         * @return True if the current value is the last one, false otherwise.
+         * @since 0.1
+         */
+        default boolean isTheLast(final int size) {
+            return this.currentValue() >= size;
+        }
+    }
+
+    private static final class ConstantIndex implements Counter {
+        @Override
+        public int currentValue() {
+            return 0;
+        }
+
+        @Override
+        public int getAndIncrement() {
+            return 0;
+        }
+    }
+
+    private static final class IncrementalIndex implements Counter {
+        /**
+         * The thread-safe counter providing the index of the next response to be returned.
+         */
+        private final AtomicInteger index = new AtomicInteger(0);
+
+        @Override
+        public int currentValue() {
+            return this.index.intValue();
+        }
+
+        @Override
+        public int getAndIncrement() {
+            return this.index.getAndIncrement();
+        }
+    }
+}

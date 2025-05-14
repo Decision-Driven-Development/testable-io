@@ -24,5 +24,11 @@
 
 package ewc.utilities.testableio.core;
 
+import java.util.UUID;
+import lombok.NonNull;
+
 public record ResponseId(String response) {
+    public static @NonNull ResponseId random() {
+        return new ResponseId(UUID.randomUUID().toString());
+    }
 }
