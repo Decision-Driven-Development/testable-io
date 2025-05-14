@@ -24,8 +24,7 @@
 
 package ewc.utilities.testableio.core;
 
-import java.util.Map;
-import java.util.function.BiFunction;
+import lombok.SneakyThrows;
 
 /**
  * I am a wrapper around the {@link RawResponse} class that adds a delay to the response.
@@ -55,7 +54,15 @@ public class StubbedResponse {
         this(response, 0);
     }
 
-    public <T> T convertUsing(BiFunction<Object, Map<String, Object>, T> converter) {
-        return this.response.convertedUsing(converter);
+    @SneakyThrows
+    public StubbedResponse waitForDelay() {
+        if (this.delay > 0) {
+            Thread.sleep(this.delay);
+        }
+        return this;
+    }
+
+    public RawResponse tryThrowing() {
+        return this.response.tryThrowing();
     }
 }
