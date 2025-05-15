@@ -45,7 +45,9 @@ final class StubbedQueryTest {
             .isEqualTo(responses.next())
             .isEqualTo(responses.next());
         Assertions.assertThat(responses.next())
-            .isEqualTo("sample response");
+            .startsWith("sample response")
+            .contains("x-header=12345")
+            .contains("http_response_code=200");
     }
 
     @Test
@@ -55,7 +57,9 @@ final class StubbedQueryTest {
             new StubbedResponse[]{StubbedQueryTest.getGenericResponse()}
         );
         Assertions.assertThat(responses.next())
-            .isEqualTo("sample response");
+            .startsWith("sample response")
+            .contains("x-header=12345")
+            .contains("http_response_code=200");
         Assertions.assertThatThrownBy(responses::next)
             .isInstanceOf(NoSuchElementException.class)
             .hasMessageContaining("No more configured responses for");
@@ -82,7 +86,7 @@ final class StubbedQueryTest {
             }
         );
         Assertions.assertThat(responses.next())
-            .isEqualTo("response 1");
+            .isEqualTo("response 1 {}");
         Assertions.assertThatThrownBy(responses::next)
             .isInstanceOf(ArithmeticException.class)
             .hasMessageContaining("test exception");
