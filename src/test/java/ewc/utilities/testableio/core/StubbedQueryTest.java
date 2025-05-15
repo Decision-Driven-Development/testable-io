@@ -37,7 +37,7 @@ import org.junit.jupiter.api.Test;
 final class StubbedQueryTest {
     @Test
     void shouldReturnTheSameResponseForeverIfItIsASingleResponse() {
-        final StubbedQuery<String> responses = StubbedQuery.from(
+        final StubbedQuery responses = StubbedQuery.from(
             "single response",
             StubbedQueryTest.getGenericResponse()
         );
@@ -45,21 +45,17 @@ final class StubbedQueryTest {
             .isEqualTo(responses.next())
             .isEqualTo(responses.next());
         Assertions.assertThat(responses.next())
-            .startsWith("sample response")
-            .contains("x-header=12345")
-            .contains("http_response_code=200");
+            .extracting("content").isEqualTo("sample response");
     }
 
     @Test
     void shouldReturnJustOneResponseIfItIsAnArrayWithOneElement() {
-        final StubbedQuery<String> responses = StubbedQuery.from(
+        final StubbedQuery responses = StubbedQuery.from(
             "array with one element",
             new StubbedResponse[]{StubbedQueryTest.getGenericResponse()}
         );
         Assertions.assertThat(responses.next())
-            .startsWith("sample response")
-            .contains("x-header=12345")
-            .contains("http_response_code=200");
+            .extracting("content").isEqualTo("sample response");
         Assertions.assertThatThrownBy(responses::next)
             .isInstanceOf(NoSuchElementException.class)
             .hasMessageContaining("No more configured responses for");
@@ -67,7 +63,7 @@ final class StubbedQueryTest {
 
     @Test
     void shouldThrowAnExceptionThatIsSetAsAResponse() {
-        final StubbedQuery<String> responses = StubbedQuery.from(
+        final StubbedQuery responses = StubbedQuery.from(
             "exception response",
             StubbedResponse.from(new ArithmeticException("test exception"))
         );
@@ -78,7 +74,7 @@ final class StubbedQueryTest {
 
     @Test
     void shouldReturnAllTheSpecifiedResponsesInOrder() {
-        final StubbedQuery<String> responses = StubbedQuery.from(
+        final StubbedQuery responses = StubbedQuery.from(
             "multiple responses",
             new StubbedResponse[]{
                 StubbedResponse.from("response 1"),
@@ -86,7 +82,7 @@ final class StubbedQueryTest {
             }
         );
         Assertions.assertThat(responses.next())
-            .isEqualTo("response 1 {}");
+                .extracting("content").isEqualTo("response 1");
         Assertions.assertThatThrownBy(responses::next)
             .isInstanceOf(ArithmeticException.class)
             .hasMessageContaining("test exception");

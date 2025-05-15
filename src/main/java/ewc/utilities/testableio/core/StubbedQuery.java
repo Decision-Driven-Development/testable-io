@@ -24,10 +24,8 @@
 
 package ewc.utilities.testableio.core;
 
-import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 /**
@@ -36,17 +34,9 @@ import java.util.function.Supplier;
  * forever, while the array of responses will be returned sequentially until it runs out of
  * responses. In such case, a {@link NoSuchElementException} will be thrown.
  *
- * @param <T> The type of the response to be returned.
  * @since 0.3
  */
-public class StubbedQuery<T> {
-    /**
-     * The default function that converts the {@link RawResponse} to a string.
-     */
-    private static final BiFunction<Object, Map<String, Object>, String> STRING_CONVERTER =
-        (content, metadata) ->
-            "%s %s".formatted(content.toString(), metadata.toString());
-
+public class StubbedQuery {
     /**
      * The counter providing the index of the next response to be returned.
      */
@@ -64,22 +54,15 @@ public class StubbedQuery<T> {
     private final QueryId id;
 
     /**
-     * Instance specific function that converts the {@link RawResponse} to the desired type.
-     */
-    private final BiFunction<Object, Map<String, Object>, T> converter;
-
-    /**
      * Single response constructor. It means that the same response will be returned forever.
      *
      * @param stub The short description of this stub instance.
      * @param value The response to be returned forever.
-     * @param converter The function that converts the {@link RawResponse} to the desired type.
      */
     public StubbedQuery(
         final String stub,
-        final StubbedResponse value,
-        final BiFunction<Object, Map<String, Object>, T> converter) {
-        this(stub, new StubbedResponse[]{value}, converter, new ConstantIndex());
+        final StubbedResponse value) {
+        this(stub, new StubbedResponse[]{value});
     }
 
     /**
@@ -88,13 +71,11 @@ public class StubbedQuery<T> {
      *
      * @param stub The short description of this stub instance.
      * @param responses The array of responses to be returned sequentially.
-     * @param converter The function that converts the {@link RawResponse} to the desired type.
      */
     public StubbedQuery(
         final String stub,
-        final StubbedResponse[] responses,
-        final BiFunction<Object, Map<String, Object>, T> converter) {
-        this(stub, responses, converter, new IncrementalIndex());
+        final StubbedResponse[] responses) {
+        this(stub, responses, new IncrementalIndex());
     }
 
     /**
@@ -102,31 +83,23 @@ public class StubbedQuery<T> {
      *
      * @param stub The short description of this stub instance.
      * @param responses The array of responses to be returned sequentially.
-     * @param converter The function that converts the {@link RawResponse} to the desired type.
      * @param index The counter providing the index of the next response to be returned.
      */
     private StubbedQuery(
         final String stub,
         final StubbedResponse[] responses,
-        BiFunction<Object, Map<String, Object>, T> converter,
         final Counter index) {
         this.id = new QueryId(stub);
         this.responses = responses;
-        this.converter = converter;
         this.index = index;
     }
 
-    static StubbedQuery<String> from(final String stub, final StubbedResponse value) {
-        return new StubbedQuery<>(
-            stub,
-            new StubbedResponse[]{value},
-            STRING_CONVERTER,
-            new ConstantIndex()
-        );
+    static StubbedQuery from(final String stub, final StubbedResponse value) {
+        return new StubbedQuery(stub, new StubbedResponse[]{value}, new ConstantIndex());
     }
 
-    static StubbedQuery<String> from(final String stub, final StubbedResponse[] responses) {
-        return new StubbedQuery<>(stub, responses, STRING_CONVERTER, new IncrementalIndex());
+    static StubbedQuery from(final String stub, final StubbedResponse[] responses) {
+        return new StubbedQuery(stub, responses, new IncrementalIndex());
     }
 
 
@@ -134,17 +107,15 @@ public class StubbedQuery<T> {
      * Returns the next response in the iterator. If the iterator has no more responses, a
      * {@link NoSuchElementException} will be thrown. After the next response is
      * fetched, its delay comes into play. After the amount of delay milliseconds passes,
-     * the response is converted to the desired type (using the {@link StubbedQuery#converter}
-     * function) and then returned. If the response contains a RuntimeException, it will be thrown
-     * right after delay, without type conversion attempt.
+     * the response is returned. If the response contains a RuntimeException, it will be thrown
+     * right after delay.
      *
      * @return The next configured response.
      */
-    public T next() {
+    public RawResponse next() {
         return responseUsing(this.index::getAndIncrement)
             .waitForDelay()
-            .tryThrowing()
-            .convertedUsing(this.converter);
+            .tryThrowing();
     }
 
     /**
@@ -157,7 +128,7 @@ public class StubbedQuery<T> {
         return responseUsing(this.index::currentValue);
     }
 
-    public StubbedQuery<T> withDelayAt(int index, int delayMillis) {
+    public StubbedQuery withDelayAt(int index, int delayMillis) {
         if (index < 0 || index >= this.responses.length) {
             throw new IndexOutOfBoundsException(
                 String.format(
@@ -171,7 +142,7 @@ public class StubbedQuery<T> {
         return this;
     }
 
-    public StubbedQuery<T> withDelayForAll(int delay) {
+    public StubbedQuery withDelayForAll(int delay) {
         for (int i = 0; i < this.responses.length; i++) {
             this.responses[i] = this.responses[i].withDelay(delay);
         }
@@ -187,6 +158,10 @@ public class StubbedQuery<T> {
                 String.format("No more configured responses for %s", this.id.query()));
         }
         return this.responses[counter.get()];
+    }
+
+    public QueryId queryId() {
+        return this.id;
     }
 
     /**
