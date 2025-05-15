@@ -37,7 +37,6 @@ import java.util.function.Supplier;
  * responses. In such case, a {@link NoSuchElementException} will be thrown.
  *
  * @param <T> The type of the response to be returned.
- *
  * @since 0.3
  */
 public class StubbedQuery<T> {
@@ -45,7 +44,8 @@ public class StubbedQuery<T> {
      * The default function that converts the {@link RawResponse} to a string.
      */
     private static final BiFunction<Object, Map<String, Object>, String> STRING_CONVERTER =
-        (content, metadata) -> content.toString();
+        (content, metadata) ->
+            "%s %s".formatted(content.toString(), metadata.toString());
 
     /**
      * The counter providing the index of the next response to be returned.
@@ -59,7 +59,7 @@ public class StubbedQuery<T> {
 
     /**
      * The identity of this instance. Used primarily for identifying the
-     *  stub that ran out of configured responses.
+     * stub that ran out of configured responses.
      */
     private final QueryId id;
 
