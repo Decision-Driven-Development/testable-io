@@ -54,6 +54,19 @@ public class StubbedResponse {
         this(response, 0);
     }
 
+    /**
+     * Creates a new StubbedResponse with the same response but with a different delay.
+     *
+     * @param delayMillis The new delay in milliseconds
+     * @return A new StubbedResponse instance with the specified delay
+     */
+    public StubbedResponse withDelay(int delayMillis) {
+        if (this.delay == delayMillis) {
+            return this;
+        }
+        return new StubbedResponse(this.response, delayMillis);
+    }
+
     @SneakyThrows
     public StubbedResponse waitForDelay() {
         if (this.delay > 0) {

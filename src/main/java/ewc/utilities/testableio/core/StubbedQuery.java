@@ -36,9 +36,17 @@ import java.util.function.Supplier;
  * forever, while the array of responses will be returned sequentially until it runs out of
  * responses. In such case, a {@link NoSuchElementException} will be thrown.
  *
+ * @param <T> The type of the response to be returned.
+ *
  * @since 0.3
  */
 public class StubbedQuery<T> {
+    /**
+     * The default function that converts the {@link RawResponse} to a string.
+     */
+    private static final BiFunction<Object, Map<String, Object>, String> STRING_CONVERTER =
+        (content, metadata) -> content.toString();
+
     /**
      * The counter providing the index of the next response to be returned.
      */
@@ -51,22 +59,14 @@ public class StubbedQuery<T> {
 
     /**
      * The identity of this instance. Used primarily for identifying the
-     * stub that ran out of configured responses.
+     *  stub that ran out of configured responses.
      */
     private final QueryId id;
 
+    /**
+     * Instance specific function that converts the {@link RawResponse} to the desired type.
+     */
     private final BiFunction<Object, Map<String, Object>, T> converter;
-
-    private static final BiFunction<Object, Map<String, Object>, String> STRING_CONVERTER =
-        (content, metadata) -> content.toString();
-
-    static StubbedQuery<String> from(final String stub, final StubbedResponse value) {
-        return new StubbedQuery<>(stub, new StubbedResponse[]{value}, STRING_CONVERTER, new ConstantIndex());
-    }
-
-    static StubbedQuery<String> from(final String stub, final StubbedResponse[] responses) {
-        return new StubbedQuery<>(stub, responses, STRING_CONVERTER, new IncrementalIndex());
-    }
 
     /**
      * Single response constructor. It means that the same response will be returned forever.
@@ -78,14 +78,13 @@ public class StubbedQuery<T> {
     public StubbedQuery(
         final String stub,
         final StubbedResponse value,
-        final BiFunction<Object, Map<String, Object>, T> converter
-    ) {
+        final BiFunction<Object, Map<String, Object>, T> converter) {
         this(stub, new StubbedResponse[]{value}, converter, new ConstantIndex());
     }
 
     /**
-     * Array of responses constructor. It means that the responses will be returned sequentially
-     * until the array runs out of responses.
+     * Array of responses constructor. It means that the responses will be returned
+     * sequentially until the array runs out of responses.
      *
      * @param stub The short description of this stub instance.
      * @param responses The array of responses to be returned sequentially.
@@ -94,8 +93,7 @@ public class StubbedQuery<T> {
     public StubbedQuery(
         final String stub,
         final StubbedResponse[] responses,
-        final BiFunction<Object, Map<String, Object>, T> converter
-    ) {
+        final BiFunction<Object, Map<String, Object>, T> converter) {
         this(stub, responses, converter, new IncrementalIndex());
     }
 
@@ -111,17 +109,30 @@ public class StubbedQuery<T> {
         final String stub,
         final StubbedResponse[] responses,
         BiFunction<Object, Map<String, Object>, T> converter,
-        final Counter index
-    ) {
+        final Counter index) {
         this.id = new QueryId(stub);
         this.responses = responses;
         this.converter = converter;
         this.index = index;
     }
 
+    static StubbedQuery<String> from(final String stub, final StubbedResponse value) {
+        return new StubbedQuery<>(
+            stub,
+            new StubbedResponse[]{value},
+            STRING_CONVERTER,
+            new ConstantIndex()
+        );
+    }
+
+    static StubbedQuery<String> from(final String stub, final StubbedResponse[] responses) {
+        return new StubbedQuery<>(stub, responses, STRING_CONVERTER, new IncrementalIndex());
+    }
+
+
     /**
-     * Returns the next response in the iterator. If the iterator has no more
-     * responses, a {@link NoSuchElementException} will be thrown. After the next response is
+     * Returns the next response in the iterator. If the iterator has no more responses, a
+     * {@link NoSuchElementException} will be thrown. After the next response is
      * fetched, its delay comes into play. After the amount of delay milliseconds passes,
      * the response is converted to the desired type (using the {@link StubbedQuery#converter}
      * function) and then returned. If the response contains a RuntimeException, it will be thrown
@@ -146,14 +157,34 @@ public class StubbedQuery<T> {
         return responseUsing(this.index::currentValue);
     }
 
+    public StubbedQuery<T> withDelayAt(int index, int delayMillis) {
+        if (index < 0 || index >= this.responses.length) {
+            throw new IndexOutOfBoundsException(
+                String.format(
+                    "Index %d is out of bounds for responses array of length %d",
+                    index,
+                    this.responses.length
+                )
+            );
+        }
+        this.responses[index] = this.responses[index].withDelay(delayMillis);
+        return this;
+    }
+
+    public StubbedQuery<T> withDelayForAll(int delay) {
+        for (int i = 0; i < this.responses.length; i++) {
+            this.responses[i] = this.responses[i].withDelay(delay);
+        }
+        return this;
+    }
+
     private StubbedResponse responseUsing(Supplier<Integer> counter) {
         if (this.responses == null) {
             throw new IllegalStateException("No response to send");
         }
         if (this.index.isTheLast(this.responses.length)) {
             throw new NoSuchElementException(
-                String.format("No more configured responses for %s", this.id.query())
-            );
+                String.format("No more configured responses for %s", this.id.query()));
         }
         return this.responses[counter.get()];
     }
