@@ -49,7 +49,7 @@ class BasicStubFacade implements StubFacade {
 
     @Override
     public void setConverterForQuery(QueryId query, BiFunction<Object, Map<String, Object>, ?> converter) {
-
+        this.stubs.setConverterFor(query, converter);
     }
 
     @Override
