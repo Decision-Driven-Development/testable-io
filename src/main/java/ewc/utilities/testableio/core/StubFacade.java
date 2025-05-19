@@ -24,6 +24,7 @@
 
 package ewc.utilities.testableio.core;
 
+import ewc.utilities.testableio.responses.Response;
 import java.util.Map;
 import java.util.function.BiFunction;
 

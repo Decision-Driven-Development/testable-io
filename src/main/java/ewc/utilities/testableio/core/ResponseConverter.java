@@ -24,6 +24,7 @@
 
 package ewc.utilities.testableio.core;
 
+import ewc.utilities.testableio.responses.RawResponse;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;

@@ -22,9 +22,10 @@
  * SOFTWARE.
  */
 
-package ewc.utilities.testableio.core;
+package ewc.utilities.testableio.responses;
 
 
+import ewc.utilities.testableio.core.ResponseId;
 import java.util.Map;
 import java.util.function.BiFunction;
 import lombok.EqualsAndHashCode;

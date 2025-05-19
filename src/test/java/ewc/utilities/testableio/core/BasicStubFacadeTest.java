@@ -24,6 +24,11 @@
 
 package ewc.utilities.testableio.core;
 
+import ewc.utilities.testableio.exceptions.NoMoreResponsesException;
+import ewc.utilities.testableio.exceptions.UnconfiguredStubException;
+import ewc.utilities.testableio.responses.RawResponse;
+import ewc.utilities.testableio.responses.ResponseSequence;
+import static org.assertj.core.api.Assertions.*;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,11 +55,39 @@ class BasicStubFacadeTest {
     }
 
     @Test
-    void shouldReturnDefaultNextResponse_whenSetAsSingleObject() {
+    void shouldReturnDefaultNextResponseForever_whenSetAsSingleObject() {
         target.setDefaultStubForQuery(TEST_URL, new RawResponse("test response"));
+        for (int i = 0; i < 100; i++) {
+            target.next(anySource, TEST_URL, String.class);
+        }
         assertThat(target.next(anySource, TEST_URL, String.class))
             .isEqualTo("test response {}");
+    }
+
+    @Test
+    void shouldReturnThePredefinedResponseSequence_whenSetAsSequence() {
+        target.setDefaultStubForQuery(TEST_URL, new ResponseSequence(
+            new RawResponse("test response 1"),
+            new RawResponse("test response 2"),
+            new RawResponse("test response 3")
+        ));
         assertThat(target.next(anySource, TEST_URL, String.class))
-            .isEqualTo("test response {}");
+            .isEqualTo("test response 1 {}");
+        assertThat(target.next(anySource, TEST_URL, String.class))
+            .isEqualTo("test response 2 {}");
+        assertThat(target.next(anySource, TEST_URL, String.class))
+            .isEqualTo("test response 3 {}");
+    }
+
+    @Test
+    void shouldThrow_whenThePredefinedSequenceIsExhausted() {
+        target.setDefaultStubForQuery(TEST_URL, new ResponseSequence(
+            new RawResponse("the only test response")
+        ));
+        assertThat(target.next(anySource, TEST_URL, String.class))
+            .isEqualTo("the only test response {}");
+        assertThatExceptionOfType(NoMoreResponsesException.class)
+            .isThrownBy(() -> target.next(anySource, TEST_URL, String.class))
+            .withMessageContaining("No more responses available for query: %s".formatted(TEST_URL.id()));
     }
 }

@@ -22,10 +22,11 @@
  * SOFTWARE.
  */
 
-package ewc.utilities.testableio.core;
+package ewc.utilities.testableio.responses;
 
-public class UnconfiguredStubException extends RuntimeException {
-    public UnconfiguredStubException(String message) {
-        super(message);
-    }
+import java.util.Map;
+import java.util.function.BiFunction;
+
+public interface Response {
+    <R> R next(BiFunction<Object, Map<String, Object>, R> transformer);
 }
