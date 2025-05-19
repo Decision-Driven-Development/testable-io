@@ -31,13 +31,13 @@ import ewc.utilities.testableio.responses.ExceptionResponse;
 import ewc.utilities.testableio.responses.RawResponse;
 import ewc.utilities.testableio.responses.ResponseSequence;
 import static org.assertj.core.api.Assertions.*;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class BasicStubFacadeTest {
-    public static final QueryId TEST_URL = new QueryId("test url");
+    private static final QueryId TEST_URL = new QueryId("test url");
+    private static final QueryId SPECIFIC_URL = new QueryId("specific url");
+    private static final SourceId SPECIFIC_SOURCE = new SourceId("specific");
     private StubFacade target;
     private QueryId anyQuery;
     private SourceId anySource;
@@ -72,7 +72,6 @@ class BasicStubFacadeTest {
         assertThatThrownBy(() -> target.next(anySource, TEST_URL, String.class))
             .isInstanceOf(RuntimeException.class)
             .hasMessageContaining("test exception");
-
     }
 
     @Test
@@ -120,5 +119,19 @@ class BasicStubFacadeTest {
             .hasMessageContaining("test exception");
         assertThat(System.currentTimeMillis() - secondDelay)
             .isCloseTo(2000, withinPercentage(1));
+    }
+
+    @Test
+    void shouldSetUpSpecificResponsesForSpecificSource() {
+        target.setDefaultStubForQuery(TEST_URL, new RawResponse("test response"));
+        target.setDefaultStubForQuery(SPECIFIC_URL, new RawResponse("default response"));
+        target.setStubForQuerySource(SPECIFIC_SOURCE, SPECIFIC_URL, new RawResponse("specific response"));
+
+        assertThat(target.next(SPECIFIC_SOURCE, TEST_URL, String.class))
+            .isEqualTo("test response {}");
+        assertThat(target.next(SPECIFIC_SOURCE, SPECIFIC_URL, String.class))
+            .isEqualTo("specific response {}");
+        assertThat(target.next(anySource, SPECIFIC_URL, String.class))
+            .isEqualTo("default response {}");
     }
 }

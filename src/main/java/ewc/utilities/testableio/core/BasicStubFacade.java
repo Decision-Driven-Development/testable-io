@@ -44,7 +44,7 @@ class BasicStubFacade implements StubFacade {
 
     @Override
     public void setStubForQuerySource(SourceId source, QueryId query, Response response) {
-
+        this.stubs.setSourceStubFor(source, query, response);
     }
 
     @Override
