@@ -22,41 +22,10 @@
  * SOFTWARE.
  */
 
-package ewc.utilities.testableio.core;
+package ewc.utilities.testableio.exceptions;
 
-import ewc.utilities.testableio.responses.RawResponse;
-import java.util.Map;
-import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-/**
- * Unit-tests for the {@link RawResponse} class.
- *
- * @since 0.1
- */
-final class RawResponseTest {
-    private RawResponse target;
-
-    @BeforeEach
-    void setUp() {
-        this.target = new RawResponse(
-                new ResponseId("test"),
-                "test",
-                Map.of("http_response_code", 200, "x-header", "12345")
-        );
-    }
-
-    @Test
-    void shouldBeConvertedToString() {
-        final String result = this.target.convertedUsing((content, metadata) -> content.toString());
-        Assertions.assertThat(result).isEqualTo("test");
-    }
-
-    @Test
-    void shouldBeConvertedToAnyClass() {
-        final SampleHttpResponse result = target.convertedUsing(SampleHttpResponse.RESPONSE_CONVERTER);
-        Assertions.assertThat(result)
-                .isEqualTo(new SampleHttpResponse("test", 200, "12345"));
+public class UnconfiguredStubException extends RuntimeException {
+    public UnconfiguredStubException(String message) {
+        super(message);
     }
 }

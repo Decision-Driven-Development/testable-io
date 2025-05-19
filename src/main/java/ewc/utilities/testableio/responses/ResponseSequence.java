@@ -22,47 +22,46 @@
  * SOFTWARE.
  */
 
-package ewc.utilities.testableio.core;
+package ewc.utilities.testableio.responses;
 
-import ewc.utilities.testableio.exceptions.NoMoreResponsesException;
-import ewc.utilities.testableio.responses.Response;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
-class BasicStubFacade implements StubFacade {
+public class ResponseSequence implements Response {
+    /**
+     * The counter providing the index of the next response to be returned.
+     */
+    private final IncrementalIndex index;
 
-    private final Stubs stubs;
+    /**
+     * The array of responses to be returned sequentially.
+     */
+    private final Response[] responses;
 
-    BasicStubFacade() {
-        this.stubs = new Stubs();
+    public ResponseSequence(Response... responses) {
+        this.responses = responses;
+        this.index = new IncrementalIndex();
     }
 
     @Override
-    public void setDefaultStubForQuery(QueryId query, Response response) {
-        this.stubs.setDefaultStubFor(query, response);
+    public <R> R next(BiFunction<Object, Map<String, Object>, R> transformer) {
+        return this.responses[this.index.getAndIncrement()].next(transformer);
     }
 
-    @Override
-    public void setStubForQuerySource(SourceId source, QueryId query, Response response) {
+    private static final class IncrementalIndex {
+        /**
+         * The thread-safe counter providing the index of the next response to be returned.
+         */
+        private final AtomicInteger index = new AtomicInteger(0);
 
-    }
-
-    @Override
-    public void setConverterForQuery(QueryId query, BiFunction<Object, Map<String, Object>, ?> converter) {
-
-    }
-
-    @Override
-    public <T> T next(SourceId source, QueryId query, Class<T> type) {
-        try {
-            return this.stubs.next(source, query, type);
-        } catch (ArrayIndexOutOfBoundsException exception) {
-            throw new NoMoreResponsesException("No more responses available for query: %s".formatted(query.id()));
+        public int currentValue() {
+            return this.index.intValue();
         }
-    }
 
-    @Override
-    public Map<QueryId, Response> activeStubsForSource(SourceId source) {
-        return Map.of();
+        public int getAndIncrement() {
+            return this.index.getAndIncrement();
+        }
+
     }
 }

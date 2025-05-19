@@ -24,6 +24,7 @@
 
 package ewc.utilities.testableio.core;
 
+import ewc.utilities.testableio.responses.RawResponse;
 import lombok.SneakyThrows;
 
 /**

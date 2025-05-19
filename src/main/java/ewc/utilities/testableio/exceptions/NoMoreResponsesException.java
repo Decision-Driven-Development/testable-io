@@ -22,11 +22,10 @@
  * SOFTWARE.
  */
 
-package ewc.utilities.testableio.core;
+package ewc.utilities.testableio.exceptions;
 
-import java.util.Map;
-import java.util.function.BiFunction;
-
-public interface Response {
-    <R> R next(BiFunction<Object, Map<String, Object>, R> transformer);
+public class NoMoreResponsesException extends RuntimeException {
+    public NoMoreResponsesException(String message) {
+        super(message);
+    }
 }
