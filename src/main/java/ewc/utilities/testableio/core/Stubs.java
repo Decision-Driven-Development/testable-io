@@ -31,7 +31,8 @@ import java.util.Map;
 import java.util.function.BiFunction;
 
 public class Stubs {
-    private Map<ResponseId, Response> stubs = new HashMap<>();
+    private final Map<ResponseId, Response> stubs = new HashMap<>();
+    private final Map<QueryId, BiFunction<Object, Map<String, Object>, ?>> converters = new HashMap<>();
 
     public <T> T next(SourceId source, QueryId query, Class<T> type) {
         final ResponseId key = new ResponseId(source, query);
@@ -43,9 +44,12 @@ public class Stubs {
 
     @SuppressWarnings("unchecked")
     private <T> BiFunction<Object, Map<String, Object>, T> converterFor(QueryId query) {
+        var converter = (BiFunction<Object, Map<String, Object>, T>) this.converters.get(query);
+        if (converter != null) {
+            return converter;
+        }
         return (Object o, Map<String, Object> map) -> (T) "%s %s".formatted(o.toString(), map.toString());
     }
-
 
     private boolean noResponseFor(ResponseId key) {
         return !stubs.containsKey(key) && !stubs.containsKey(defaultResponseIdFor(key.query));
@@ -65,6 +69,10 @@ public class Stubs {
 
     public void setSourceStubFor(SourceId source, QueryId query, Response response) {
         this.stubs.put(new ResponseId(source, query), response);
+    }
+
+    public void setConverterFor(QueryId query, BiFunction<Object, Map<String, Object>, ?> converter) {
+        this.converters.put(query, converter);
     }
 
     record ResponseId(SourceId source, QueryId query) {

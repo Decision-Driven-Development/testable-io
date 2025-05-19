@@ -134,4 +134,18 @@ class BasicStubFacadeTest {
         assertThat(target.next(anySource, SPECIFIC_URL, String.class))
             .isEqualTo("default response {}");
     }
+
+    @Test
+    void shouldUseDifferentConvertersForDifferentQueries() {
+        target.setDefaultStubForQuery(TEST_URL, new RawResponse("test response"));
+        target.setDefaultStubForQuery(SPECIFIC_URL, new RawResponse("default response"));
+        target.setConverterForQuery(
+            SPECIFIC_URL,
+            (content, metadata) -> new ResponseId(content.toString())
+        );
+        assertThat(target.next(anySource, TEST_URL, String.class))
+            .isEqualTo("test response {}");
+        assertThat(target.next(anySource, SPECIFIC_URL, ResponseId.class))
+            .isEqualTo(new ResponseId("default response"));
+    }
 }
