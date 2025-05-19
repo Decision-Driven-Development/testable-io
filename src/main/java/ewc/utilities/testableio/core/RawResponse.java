@@ -36,7 +36,7 @@ import lombok.NonNull;
  * @since 0.3
  */
 @EqualsAndHashCode
-public class RawResponse {
+public class RawResponse implements Response {
     /**
      * Main content of the stubbed response. Cannot be null.
      */
@@ -82,5 +82,10 @@ public class RawResponse {
             throw exception;
         }
         return this;
+    }
+
+    @Override
+    public <R> R next(BiFunction<Object, Map<String, Object>, R> transformer) {
+        return this.convertedUsing(transformer);
     }
 }

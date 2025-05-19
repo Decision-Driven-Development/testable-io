@@ -46,7 +46,7 @@ final class StubBuilderTest {
     @Test
     void shouldBuildACommonStub() {
         final Stub common = Stub
-            .forQueryId(StubBuilderTest.QUERY.query())
+            .forQueryId(StubBuilderTest.QUERY.id())
             .withContents(Mocks.defaultResponse())
             .withResponseId("recommendationIds");
         Assertions.assertThat(common)
@@ -62,7 +62,7 @@ final class StubBuilderTest {
     @Test
     void shouldBuildWithSpecificName() {
         final Stub specific = Stub
-            .forQueryId(StubBuilderTest.QUERY.query())
+            .forQueryId(StubBuilderTest.QUERY.id())
             .withContents(Mocks.defaultResponse())
             .withResponseId("myStub");
         Assertions.assertThat(specific)

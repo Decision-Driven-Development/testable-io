@@ -36,22 +36,18 @@ import java.util.stream.Collectors;
  * @since 0.1
  */
 public class GenericIoStub {
-    /**
-     * Client ID for all the clients (i.e. when no specific client is set for the stub).
-     */
-    private static final ClientId COMMON_CLIENT = new ClientId("common");
 
     /**
      * The stubs for each client.
      */
-    private final Map<ClientId, SingleClientStubs> stubs = new HashMap<>();
+    private final Map<SourceId, SingleClientStubs> stubs = new HashMap<>();
 
     /**
      * The set of all the responses.
      */
     private final Set<Stub> stored = new HashSet<>();
 
-    public GenericResponse nextResponseFor(final ClientId client, final QueryId query) {
+    public GenericResponse nextResponseFor(final SourceId client, final QueryId query) {
         return this.stubsActiveFor(client).nextResponseFor(query);
     }
 
@@ -61,7 +57,7 @@ public class GenericIoStub {
      * @param stub The response to be added.
      */
     public void addCommonStub(final Stub stub) {
-        this.addStub(stub, GenericIoStub.COMMON_CLIENT);
+        this.addStub(stub, SourceId.DEFAULT_SOURCE);
     }
 
     /**
@@ -70,7 +66,7 @@ public class GenericIoStub {
      * @param stub The response to be added.
      * @param client The client ID for which the response is to be added.
      */
-    public void addClientStub(final Stub stub, final ClientId client) {
+    public void addClientStub(final Stub stub, final SourceId client) {
         this.addStub(stub, client);
     }
 
@@ -95,7 +91,7 @@ public class GenericIoStub {
      * @param response Response ID for the response to be set as active.
      */
     public void setActiveResponse(
-        final ClientId client, final QueryId query, final ResponseId response
+        final SourceId client, final QueryId query, final ResponseId response
     ) {
         this.stored.stream().filter(resp -> resp.query().equals(query))
             .filter(resp -> resp.name().equals(response))
@@ -108,18 +104,18 @@ public class GenericIoStub {
     }
 
     public Map<QueryId, GenericResponse> getCurrentCommonStubs() {
-        return this.stubs.get(GenericIoStub.COMMON_CLIENT).currentActive();
+        return this.stubs.get(SourceId.DEFAULT_SOURCE).currentActive();
     }
 
-    public Map<QueryId, GenericResponse> getCurrentClientStubs(final ClientId client) {
+    public Map<QueryId, GenericResponse> getCurrentClientStubs(final SourceId client) {
         final Map<QueryId, GenericResponse> result = new HashMap<>(
-            this.stubs.getOrDefault(GenericIoStub.COMMON_CLIENT, new SingleClientStubs()).currentActive()
+            this.stubs.getOrDefault(SourceId.DEFAULT_SOURCE, new SingleClientStubs()).currentActive()
         );
         result.putAll(this.stubsExplicitlyConfiguredFor(client).currentActive());
         return result;
     }
 
-    public void resetStubsFor(ClientId client) {
+    public void resetStubsFor(SourceId client) {
         this.stubs.remove(client);
     }
 
@@ -129,7 +125,7 @@ public class GenericIoStub {
      * @param client The client ID for which the response is to be set.
      * @param stub The response to be set as active.
      */
-    private void setActiveResponse(final ClientId client, final Stub stub) {
+    private void setActiveResponse(final SourceId client, final Stub stub) {
         this.stubs.putIfAbsent(client, new SingleClientStubs());
         this.stubs.get(client).setSingleResponseFor(stub.query(), stub.response());
     }
@@ -140,20 +136,20 @@ public class GenericIoStub {
      * @param stub The stub to be added.
      * @param client The client ID for which the stub is to be added.
      */
-    private void addStub(final Stub stub, final ClientId client) {
+    private void addStub(final Stub stub, final SourceId client) {
         this.stored.add(stub);
         this.setActiveResponse(client, stub);
     }
 
-    private SingleClientStubs stubsExplicitlyConfiguredFor(ClientId client) {
-        return this.stubs.getOrDefault(client, this.stubs.get(GenericIoStub.COMMON_CLIENT));
+    private SingleClientStubs stubsExplicitlyConfiguredFor(SourceId client) {
+        return this.stubs.getOrDefault(client, this.stubs.get(SourceId.DEFAULT_SOURCE));
     }
 
-    private SingleClientStubs stubsActiveFor(ClientId client) {
+    private SingleClientStubs stubsActiveFor(SourceId client) {
         final Map<QueryId, GenericResponse> clientStubs = this.getCurrentClientStubs(client);
         Map<QueryId, SingleQueryResponses> result = new HashMap<>();
         clientStubs.forEach((query, response) -> {
-            result.put(query, new SingleQueryResponses(query.query(), response));
+            result.put(query, new SingleQueryResponses(query.id(), response));
         });
         return new SingleClientStubs(result);
     }

@@ -49,7 +49,7 @@ class SingleClientStubs {
     }
 
     public void setSingleResponseFor(final QueryId query, final GenericResponse response) {
-        this.stubs.put(query, new SingleQueryResponses(query.query(), response));
+        this.stubs.put(query, new SingleQueryResponses(query.id(), response));
     }
 
     public void setMultipleResponsesFor(final String query, final GenericResponse... responses) {

@@ -24,10 +24,8 @@
 
 package ewc.utilities.testableio.core;
 
-import java.util.UUID;
-
-public record QueryId(String id) {
-    public static QueryId random() {
-        return new QueryId(UUID.randomUUID().toString());
+public class UnconfiguredStubException extends RuntimeException {
+    public UnconfiguredStubException(String message) {
+        super(message);
     }
 }

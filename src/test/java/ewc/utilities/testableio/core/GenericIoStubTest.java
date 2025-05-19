@@ -35,11 +35,11 @@ import org.junit.jupiter.api.Test;
  * @since 0.1
  */
 final class GenericIoStubTest {
-    public static final ClientId ANY_CLIENT = new ClientId("any client");
+    public static final SourceId ANY_CLIENT = new SourceId("any client");
 
-    public static final ClientId VIP_CLIENT = new ClientId("12345");
+    public static final SourceId VIP_CLIENT = new SourceId("12345");
 
-    public static final ClientId NEW_CLIENT = new ClientId("new client");
+    public static final SourceId NEW_CLIENT = new SourceId("new client");
 
     public static final QueryId TEST_REQUEST = new QueryId("test_request");
 

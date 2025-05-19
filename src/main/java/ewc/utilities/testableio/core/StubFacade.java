@@ -24,10 +24,21 @@
 
 package ewc.utilities.testableio.core;
 
-import java.util.UUID;
+import java.util.Map;
+import java.util.function.BiFunction;
 
-public record QueryId(String id) {
-    public static QueryId random() {
-        return new QueryId(UUID.randomUUID().toString());
+public interface StubFacade {
+    static StubFacade basic() {
+        return new BasicStubFacade();
     }
+
+    void setDefaultStubForQuery(QueryId query, Response response);
+
+    void setStubForQuerySource(SourceId source, QueryId query, Response response);
+
+    void setConverterForQuery(QueryId query, BiFunction<Object, Map<String, Object>, ?> converter);
+
+    <T> T next(SourceId source, QueryId query, Class<T> type);
+
+    Map<QueryId, Response> activeStubsForSource(SourceId source);
 }

@@ -41,9 +41,9 @@ final class EndToEndTest {
     public static final QueryId MISSING_PAGE = new QueryId("non-existing");
     public static final QueryId NUMBER_PAGE = new QueryId("number");
 
-    public static final ClientId ANY_CLIENT = new ClientId("any client");
-    public static final ClientId VIP_CLIENT = new ClientId("VIP client");
-    public static final ClientId NEW_CLIENT = new ClientId("new client");
+    public static final SourceId ANY_CLIENT = new SourceId("any client");
+    public static final SourceId VIP_CLIENT = new SourceId("VIP client");
+    public static final SourceId NEW_CLIENT = new SourceId("new client");
     public static final IllegalStateException NO_SUCH_PAGE_EXCEPTION = new IllegalStateException("no such page");
     public static final GenericResponse DEFAULT_HOME_PAGE = new GenericResponse("html for the home page");
     public static final GenericResponse DEFAULT_NUMBER_PAGE = new GenericResponse(1000L);
@@ -128,14 +128,14 @@ final class EndToEndTest {
             .containsEntry(MISSING_PAGE, NO_SUCH_PAGE);
     }
 
-    private When when(ClientId client) {
+    private When when(SourceId client) {
         return new When(client);
     }
 
     private class When {
-        private final ClientId client;
+        private final SourceId client;
 
-        public When(ClientId client) {
+        public When(SourceId client) {
             this.client = client;
         }
 
@@ -145,10 +145,10 @@ final class EndToEndTest {
     }
 
     private class Then {
-        private final ClientId client;
+        private final SourceId client;
         private final QueryId query;
 
-        public Then(ClientId client, QueryId query) {
+        public Then(SourceId client, QueryId query) {
             this.client = client;
             this.query = query;
         }

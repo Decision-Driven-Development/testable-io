@@ -26,8 +26,13 @@ package ewc.utilities.testableio.core;
 
 import java.util.UUID;
 
-public record QueryId(String id) {
-    public static QueryId random() {
-        return new QueryId(UUID.randomUUID().toString());
+public record SourceId(String source) {
+    /**
+     * Client ID for all the clients (i.e. when no specific client is set for the stub).
+     */
+    static final SourceId DEFAULT_SOURCE = new SourceId("common");
+
+    public static SourceId random() {
+        return new SourceId(UUID.randomUUID().toString());
     }
 }
