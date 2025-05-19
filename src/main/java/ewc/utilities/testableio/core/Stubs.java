@@ -63,6 +63,10 @@ public class Stubs {
         return new ResponseId(SourceId.DEFAULT_SOURCE, query);
     }
 
+    public void setSourceStubFor(SourceId source, QueryId query, Response response) {
+        this.stubs.put(new ResponseId(source, query), response);
+    }
+
     record ResponseId(SourceId source, QueryId query) {
     }
 }
