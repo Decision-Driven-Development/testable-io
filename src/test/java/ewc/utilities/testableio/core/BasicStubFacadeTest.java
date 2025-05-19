@@ -26,6 +26,7 @@ package ewc.utilities.testableio.core;
 
 import ewc.utilities.testableio.exceptions.NoMoreResponsesException;
 import ewc.utilities.testableio.exceptions.UnconfiguredStubException;
+import ewc.utilities.testableio.responses.DelayedResponse;
 import ewc.utilities.testableio.responses.ExceptionResponse;
 import ewc.utilities.testableio.responses.RawResponse;
 import ewc.utilities.testableio.responses.ResponseSequence;
@@ -99,5 +100,25 @@ class BasicStubFacadeTest {
         assertThatExceptionOfType(NoMoreResponsesException.class)
             .isThrownBy(() -> target.next(anySource, TEST_URL, String.class))
             .withMessageContaining("No more responses available for query: %s".formatted(TEST_URL.id()));
+    }
+
+    @Test
+    void shouldWaitForDelayBeforeReturning() {
+        target.setDefaultStubForQuery(TEST_URL, new ResponseSequence(
+            new DelayedResponse(new RawResponse("test response 1"), 1000),
+            new DelayedResponse(new ExceptionResponse(new RuntimeException("test exception")), 2000))
+        );
+        final long firstDelay = System.currentTimeMillis();
+        assertThat(target.next(anySource, TEST_URL, String.class))
+            .isEqualTo("test response 1 {}");
+        assertThat(System.currentTimeMillis() - firstDelay)
+            .isCloseTo(1000, withinPercentage(1));
+
+        final long secondDelay = System.currentTimeMillis();
+        assertThatThrownBy(() -> target.next(anySource, TEST_URL, String.class))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("test exception");
+        assertThat(System.currentTimeMillis() - secondDelay)
+            .isCloseTo(2000, withinPercentage(1));
     }
 }
