@@ -24,5 +24,39 @@
 
 package ewc.utilities.testableio.core;
 
-public record ClientId(String client) {
+import java.util.Map;
+import java.util.function.BiFunction;
+
+class BasicStubFacade implements StubFacade {
+
+    private final Stubs stubs;
+
+    BasicStubFacade() {
+        this.stubs = new Stubs();
+    }
+
+    @Override
+    public void setDefaultStubForQuery(QueryId query, Response response) {
+        this.stubs.setDefaultStubFor(query, response);
+    }
+
+    @Override
+    public void setStubForQuerySource(SourceId source, QueryId query, Response response) {
+
+    }
+
+    @Override
+    public void setConverterForQuery(QueryId query, BiFunction<Object, Map<String, Object>, ?> converter) {
+
+    }
+
+    @Override
+    public <T> T next(SourceId source, QueryId query, Class<T> type) {
+        return this.stubs.next(source, query, type);
+    }
+
+    @Override
+    public Map<QueryId, Response> activeStubsForSource(SourceId source) {
+        return Map.of();
+    }
 }

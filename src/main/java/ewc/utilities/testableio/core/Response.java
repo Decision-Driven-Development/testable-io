@@ -24,10 +24,9 @@
 
 package ewc.utilities.testableio.core;
 
-import java.util.UUID;
+import java.util.Map;
+import java.util.function.BiFunction;
 
-public record QueryId(String id) {
-    public static QueryId random() {
-        return new QueryId(UUID.randomUUID().toString());
-    }
+public interface Response {
+    <R> R next(BiFunction<Object, Map<String, Object>, R> transformer);
 }

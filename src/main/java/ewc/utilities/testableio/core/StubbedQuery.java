@@ -155,7 +155,7 @@ public class StubbedQuery {
         }
         if (this.index.isTheLast(this.responses.length)) {
             throw new NoSuchElementException(
-                String.format("No more configured responses for %s", this.id.query()));
+                String.format("No more configured responses for %s", this.id.id()));
         }
         return this.responses[counter.get()];
     }
