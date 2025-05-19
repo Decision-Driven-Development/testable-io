@@ -26,6 +26,7 @@ package ewc.utilities.testableio.core;
 
 import ewc.utilities.testableio.exceptions.NoMoreResponsesException;
 import ewc.utilities.testableio.exceptions.UnconfiguredStubException;
+import ewc.utilities.testableio.responses.ExceptionResponse;
 import ewc.utilities.testableio.responses.RawResponse;
 import ewc.utilities.testableio.responses.ResponseSequence;
 import static org.assertj.core.api.Assertions.*;
@@ -62,6 +63,15 @@ class BasicStubFacadeTest {
         }
         assertThat(target.next(anySource, TEST_URL, String.class))
             .isEqualTo("test response {}");
+    }
+
+    @Test
+    void shouldThrow_whenSetAsAnException() {
+        target.setDefaultStubForQuery(TEST_URL, new ExceptionResponse(new RuntimeException("test exception")));
+        assertThatThrownBy(() -> target.next(anySource, TEST_URL, String.class))
+            .isInstanceOf(RuntimeException.class)
+            .hasMessageContaining("test exception");
+
     }
 
     @Test
