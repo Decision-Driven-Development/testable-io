@@ -29,4 +29,8 @@ import java.util.function.BiFunction;
 
 public interface Response {
     <R> R next(BiFunction<Object, Map<String, Object>, R> transformer);
+
+    default Response peek() {
+        return this;
+    }
 }
