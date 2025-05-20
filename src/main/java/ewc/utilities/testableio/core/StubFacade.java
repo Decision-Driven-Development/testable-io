@@ -30,7 +30,7 @@ import java.util.function.BiFunction;
 
 public interface StubFacade {
     static StubFacade basic() {
-        return new BasicStubFacade();
+        return new Stubs();
     }
 
     void setDefaultStubForQuery(QueryId query, Response response);

@@ -28,7 +28,7 @@ import java.util.UUID;
 
 public record SourceId(String source) {
     /**
-     * Client ID for all the clients (i.e. when no specific client is set for the stub).
+     * Default Source ID for every stub that is not configured with a specific source.
      */
     static final SourceId DEFAULT_SOURCE = new SourceId("common");
 
