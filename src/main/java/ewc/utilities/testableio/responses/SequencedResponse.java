@@ -28,7 +28,7 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 
-public class ResponseSequence implements Response {
+public class SequencedResponse implements Response {
     /**
      * The counter providing the index of the next response to be returned.
      */
@@ -39,7 +39,7 @@ public class ResponseSequence implements Response {
      */
     private final Response[] responses;
 
-    public ResponseSequence(Response... responses) {
+    public SequencedResponse(Response... responses) {
         this.responses = responses;
         this.index = new IncrementalIndex();
     }
@@ -47,6 +47,11 @@ public class ResponseSequence implements Response {
     @Override
     public <R> R next(BiFunction<Object, Map<String, Object>, R> transformer) {
         return this.responses[this.index.getAndIncrement()].next(transformer);
+    }
+
+    @Override
+    public Response peek() {
+        return this.responses[this.index.currentValue()].peek();
     }
 
     private static final class IncrementalIndex {

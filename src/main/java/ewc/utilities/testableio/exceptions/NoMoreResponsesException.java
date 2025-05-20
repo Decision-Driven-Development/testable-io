@@ -25,7 +25,7 @@
 package ewc.utilities.testableio.exceptions;
 
 public class NoMoreResponsesException extends RuntimeException {
-    public NoMoreResponsesException(String message) {
-        super(message);
+    public NoMoreResponsesException(String query) {
+        super("No more responses available for query: " + query);
     }
 }

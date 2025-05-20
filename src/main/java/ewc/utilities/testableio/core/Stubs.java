@@ -26,6 +26,7 @@ package ewc.utilities.testableio.core;
 
 import ewc.utilities.testableio.exceptions.NoMoreResponsesException;
 import ewc.utilities.testableio.exceptions.UnconfiguredStubException;
+import ewc.utilities.testableio.responses.ExceptionResponse;
 import ewc.utilities.testableio.responses.Response;
 import java.util.HashMap;
 import java.util.Map;
@@ -45,7 +46,7 @@ class Stubs implements StubFacade {
         try {
             return this.stubFor(key).next(this.converterFor(key.query));
         } catch (ArrayIndexOutOfBoundsException e) {
-            throw new NoMoreResponsesException("No more responses available for query: %s".formatted(query.id()));
+            throw new NoMoreResponsesException(query.id());
         }
     }
 
@@ -100,7 +101,16 @@ class Stubs implements StubFacade {
     private Map<QueryId, Response> responsesFor(SourceId source) {
         return this.stubs.entrySet().stream()
             .filter(e -> e.getKey().source == source)
-            .collect(Collectors.toMap(e -> e.getKey().query, Map.Entry::getValue));
+            .collect(Collectors.toMap(
+                e -> e.getKey().query,
+                e -> {
+                    try {
+                        return e.getValue().peek();
+                    } catch (ArrayIndexOutOfBoundsException ex) {
+                        return new ExceptionResponse(new NoMoreResponsesException(e.getKey().query.id()));
+                    }
+                }
+            ));
     }
 
     record ResponseId(SourceId source, QueryId query) {

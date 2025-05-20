@@ -29,7 +29,7 @@ import ewc.utilities.testableio.exceptions.UnconfiguredStubException;
 import ewc.utilities.testableio.responses.DelayedResponse;
 import ewc.utilities.testableio.responses.ExceptionResponse;
 import ewc.utilities.testableio.responses.RawResponse;
-import ewc.utilities.testableio.responses.ResponseSequence;
+import ewc.utilities.testableio.responses.SequencedResponse;
 import static org.assertj.core.api.Assertions.*;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -76,7 +76,7 @@ class BasicStubFacadeTest {
 
     @Test
     void shouldReturnThePredefinedResponseSequence_whenSetAsSequence() {
-        target.setDefaultStubForQuery(TEST_URL, new ResponseSequence(
+        target.setDefaultStubForQuery(TEST_URL, new SequencedResponse(
             new RawResponse("test response 1"),
             new RawResponse("test response 2"),
             new RawResponse("test response 3")
@@ -91,7 +91,7 @@ class BasicStubFacadeTest {
 
     @Test
     void shouldThrow_whenThePredefinedSequenceIsExhausted() {
-        target.setDefaultStubForQuery(TEST_URL, new ResponseSequence(
+        target.setDefaultStubForQuery(TEST_URL, new SequencedResponse(
             new RawResponse("the only test response")
         ));
         assertThat(target.next(anySource, TEST_URL, String.class))
@@ -103,7 +103,7 @@ class BasicStubFacadeTest {
 
     @Test
     void shouldWaitForDelayBeforeReturning() {
-        target.setDefaultStubForQuery(TEST_URL, new ResponseSequence(
+        target.setDefaultStubForQuery(TEST_URL, new SequencedResponse(
             new DelayedResponse(new RawResponse("test response 1"), 1000),
             new DelayedResponse(new ExceptionResponse(new RuntimeException("test exception")), 2000))
         );
