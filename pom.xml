@@ -5,12 +5,6 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <parent>
-        <groupId>com.jcabi</groupId>
-        <artifactId>parent</artifactId>
-        <version>0.68.0</version>
-    </parent>
-
     <groupId>io.github.nergal-perm</groupId>
     <artifactId>testable-io</artifactId>
     <version>0.2.1</version>
@@ -20,6 +14,7 @@
     <description>Set of primitives enabling Testing Without Mocks approach for Java applications
     </description>
     <inceptionYear>2025</inceptionYear>
+    <url>https://github.com/Decision-Driven-Development/testable-io</url>
     <organization>
         <name>Eugene Terekhov</name>
         <url>https://github.com/nergal-perm</url>
@@ -67,10 +62,17 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
+    <scm>
+        <connection>scm:git@github.com:Decision-Driven-Development/testable-io.git</connection>
+        <developerConnection>git@github.com:Decision-Driven-Development/testable-io.git</developerConnection>
+        <url>https://github.com/Decision-Driven-Development/testable-io</url>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <version>1.18.36</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
@@ -79,30 +81,15 @@
             <version>3.26.3</version>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <version>5.11.4</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <profiles>
-        <profile>
-            <id>qulice</id>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>com.qulice</groupId>
-                        <artifactId>qulice-maven-plugin</artifactId>
-                        <configuration>
-                            <excludes>
-                                <exclude>
-                                    pmd:/src/main/java/ewc/utilities/testableio/core/SingleQueryResponses.java
-                                </exclude>
-                                <exclude>
-                                    pmd:/src/main/java/ewc/utilities/testableio/core/Stub.java
-                                </exclude>
-                            </excludes>
-                        </configuration>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
         <profile>
             <id>newSonatype</id>
             <build>
@@ -132,7 +119,7 @@
                                 </goals>
                                 <configuration>
                                     <additionalOptions>${javadoc.opts}</additionalOptions>
-                                    <source>16</source>
+                                    <source>17</source>
                                 </configuration>
                             </execution>
                         </executions>
@@ -146,6 +133,52 @@
                             <publishingServerId>central</publishingServerId>
                             <tokenAuth>true</tokenAuth>
                         </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>doclint-java8-disable</id>
+            <activation>
+                <jdk>[1.8,)</jdk>
+            </activation>
+            <properties>
+                <javadoc.opts>-Xdoclint:none</javadoc.opts>
+            </properties>
+        </profile>
+        <profile>
+            <id>gpg-sign</id>
+            <activation>
+                <property>
+                    <name>gpg.keyname</name>
+                </property>
+            </activation>
+            <build>
+                <plugins>
+                    <plugin>
+                        <!--
+                        To GPG-sign the artifact before deployment to foreign
+                        repository. GPG keys have to be provided in CI
+                        environment, and published beforehand.
+                        @link http://www.sonatype.com/people/2010/01/how-to-generate-pgp-signatures-with-maven/
+                        -->
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.4</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <gpgArguments>
+                                        <arg>--pinentry-mode</arg>
+                                        <arg>loopback</arg>
+                                    </gpgArguments>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
