@@ -24,6 +24,7 @@
 
 package ewc.utilities.testableio.core;
 
+import ewc.utilities.testableio.exceptions.NoMoreResponsesException;
 import ewc.utilities.testableio.exceptions.UnconfiguredStubException;
 import ewc.utilities.testableio.responses.Response;
 import java.util.HashMap;
@@ -31,16 +32,21 @@ import java.util.Map;
 import java.util.function.BiFunction;
 import java.util.stream.Collectors;
 
-public class Stubs {
+class Stubs implements StubFacade {
     private final Map<ResponseId, Response> stubs = new HashMap<>();
     private final Map<QueryId, BiFunction<Object, Map<String, Object>, ?>> converters = new HashMap<>();
 
+    @Override
     public <T> T next(SourceId source, QueryId query, Class<T> type) {
         final ResponseId key = new ResponseId(source, query);
         if (noResponseFor(key)) {
-            throw new UnconfiguredStubException("No stubs configured for query: " + query.id());
+            throw new UnconfiguredStubException("No stubs configured for query: %s".formatted(query.id()));
         }
-        return this.stubFor(key).next(this.converterFor(key.query));
+        try {
+            return this.stubFor(key).next(this.converterFor(key.query));
+        } catch (ArrayIndexOutOfBoundsException e) {
+            throw new NoMoreResponsesException("No more responses available for query: %s".formatted(query.id()));
+        }
     }
 
     @SuppressWarnings("unchecked")
@@ -52,12 +58,31 @@ public class Stubs {
         return (Object o, Map<String, Object> map) -> (T) "%s %s".formatted(o.toString(), map.toString());
     }
 
-    private boolean noResponseFor(ResponseId key) {
-        return !stubs.containsKey(key) && !stubs.containsKey(defaultResponseIdFor(key.query));
+    @Override
+    public void setDefaultStubForQuery(QueryId query, Response response) {
+        this.stubs.put(defaultResponseIdFor(query), response);
     }
 
-    public void setDefaultStubFor(QueryId query, Response response) {
-        this.stubs.put(defaultResponseIdFor(query), response);
+    @Override
+    public void setStubForQuerySource(SourceId source, QueryId query, Response response) {
+        this.stubs.put(new ResponseId(source, query), response);
+    }
+
+    @Override
+    public void setConverterForQuery(QueryId query, BiFunction<Object, Map<String, Object>, ?> converter) {
+        this.converters.put(query, converter);
+    }
+
+    @Override
+    public Map<QueryId, Response> activeStubsForSource(SourceId source) {
+        Map<QueryId, Response> result = responsesFor(SourceId.DEFAULT_SOURCE);
+        result.putAll(responsesFor(source));
+        return result;
+    }
+
+    @Override
+    public void resetStubsForSource(SourceId source) {
+        this.stubs.entrySet().removeIf(e -> e.getKey().source == source);
     }
 
     private Response stubFor(ResponseId key) {
@@ -68,28 +93,14 @@ public class Stubs {
         return new ResponseId(SourceId.DEFAULT_SOURCE, query);
     }
 
-    public void setSourceStubFor(SourceId source, QueryId query, Response response) {
-        this.stubs.put(new ResponseId(source, query), response);
-    }
-
-    public void setConverterFor(QueryId query, BiFunction<Object, Map<String, Object>, ?> converter) {
-        this.converters.put(query, converter);
-    }
-
-    public Map<QueryId, Response> activeStubsForSource(SourceId source) {
-        Map<QueryId, Response> result = responsesFor(SourceId.DEFAULT_SOURCE);
-        result.putAll(responsesFor(source));
-        return result;
+    private boolean noResponseFor(ResponseId key) {
+        return !stubs.containsKey(key) && !stubs.containsKey(defaultResponseIdFor(key.query));
     }
 
     private Map<QueryId, Response> responsesFor(SourceId source) {
         return this.stubs.entrySet().stream()
             .filter(e -> e.getKey().source == source)
             .collect(Collectors.toMap(e -> e.getKey().query, Map.Entry::getValue));
-    }
-
-    public void resetStubsForSource(SourceId source) {
-        this.stubs.entrySet().removeIf(e -> e.getKey().source == source);
     }
 
     record ResponseId(SourceId source, QueryId query) {
