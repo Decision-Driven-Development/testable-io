@@ -24,9 +24,12 @@
 
 package ewc.utilities.testableio.external;
 
-import ewc.utilities.testableio.core.*;
+import ewc.utilities.testableio.core.QueryId;
+import ewc.utilities.testableio.core.SourceId;
+import ewc.utilities.testableio.core.StubFacade;
+import ewc.utilities.testableio.responses.ExceptionResponse;
+import ewc.utilities.testableio.responses.RawResponse;
 import java.util.Map;
-import java.util.stream.Stream;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -37,130 +40,122 @@ import org.junit.jupiter.api.Test;
  * @since 0.2
  */
 final class EndToEndTest {
-    public static final QueryId HOME_PAGE = new QueryId("home");
-    public static final QueryId MISSING_PAGE = new QueryId("non-existing");
-    public static final QueryId NUMBER_PAGE = new QueryId("number");
+    private static final QueryId HOME_PAGE = new QueryId("home");
+    private static final QueryId MISSING_PAGE = new QueryId("non-existing");
+    private static final QueryId NUMBER_PAGE = new QueryId("number");
 
-    public static final SourceId ANY_CLIENT = new SourceId("any client");
-    public static final SourceId VIP_CLIENT = new SourceId("VIP client");
-    public static final SourceId NEW_CLIENT = new SourceId("new client");
-    public static final IllegalStateException NO_SUCH_PAGE_EXCEPTION = new IllegalStateException("no such page");
-    public static final GenericResponse DEFAULT_HOME_PAGE = new GenericResponse("html for the home page");
-    public static final GenericResponse DEFAULT_NUMBER_PAGE = new GenericResponse(1000L);
-    public static final GenericResponse VIP_HOME_PAGE = new GenericResponse("VIP home page");
-    public static final GenericResponse NO_SUCH_PAGE = new GenericResponse(NO_SUCH_PAGE_EXCEPTION);
-    private GenericIoStub target;
+    private static final SourceId ANY_CLIENT = new SourceId("any client");
+    private static final SourceId VIP_CLIENT = new SourceId("VIP client");
+    private static final SourceId NEW_CLIENT = new SourceId("new client");
+    private static final IllegalStateException NO_SUCH_PAGE_EXCEPTION = new IllegalStateException("no such page");
+    private static final ExceptionResponse MISSING_PAGE_RESPONSE = new ExceptionResponse(NO_SUCH_PAGE_EXCEPTION);
+    private static final String HOME_PAGE_CONTENTS = "html for the home page";
+    private static final RawResponse HOME_PAGE_RESPONSE = new RawResponse(HOME_PAGE_CONTENTS);
+    private static final long NUMBER_PAGE_CONTENTS = 1000L;
+    private static final RawResponse NUMBER_PAGE_RESPONSE = new RawResponse(NUMBER_PAGE_CONTENTS);
+    private static final String VIP_PAGE_CONTENTS = "VIP home page";
+    private static final RawResponse VIP_PAGE_RESPONSE = new RawResponse(VIP_PAGE_CONTENTS);
+
+    private StubFacade facade;
 
     @BeforeEach
     void setUp() {
-        this.target = new GenericIoStub();
-        Stream.of(
-            Stub.forQueryId("home")
-                .withContents(DEFAULT_HOME_PAGE)
-                .withResponseId("home"),
-            Stub.forQueryId("non-existing")
-                .withContents(NO_SUCH_PAGE)
-                .withResponseId("non-existing"),
-            Stub.forQueryId("number")
-                .withContents(DEFAULT_NUMBER_PAGE)
-                .withResponseId("number")
-        ).forEach(stub -> this.target.addCommonStub(stub));
+        this.facade = StubFacade.basic();
+        this.facade.setDefaultStubForQuery(HOME_PAGE, HOME_PAGE_RESPONSE);
+        this.facade.setConverterForQuery(HOME_PAGE, (c, m) -> c.toString());
+        this.facade.setDefaultStubForQuery(NUMBER_PAGE, NUMBER_PAGE_RESPONSE);
+        this.facade.setConverterForQuery(NUMBER_PAGE, (c, m) -> c);
+        this.facade.setDefaultStubForQuery(MISSING_PAGE, MISSING_PAGE_RESPONSE);
     }
 
     @Test
     void shouldHaveAPredefinedSetOfDefaultResponses() {
-        when(VIP_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
-        when(NEW_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
-        when(ANY_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
-        when(ANY_CLIENT).requests(NUMBER_PAGE).then(DEFAULT_NUMBER_PAGE);
-        when(NEW_CLIENT).requests(NUMBER_PAGE).then(DEFAULT_NUMBER_PAGE);
-        when(VIP_CLIENT).requests(NUMBER_PAGE).then(DEFAULT_NUMBER_PAGE);
-        when(ANY_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE_EXCEPTION);
-        when(NEW_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE_EXCEPTION);
-        when(VIP_CLIENT).requests(MISSING_PAGE).thenThrows(NO_SUCH_PAGE_EXCEPTION);
+        when(VIP_CLIENT).requests(HOME_PAGE).responseIs(HOME_PAGE_CONTENTS);
+        when(NEW_CLIENT).requests(HOME_PAGE).responseIs(HOME_PAGE_CONTENTS);
+        when(ANY_CLIENT).requests(HOME_PAGE).responseIs(HOME_PAGE_CONTENTS);
+        when(ANY_CLIENT).requests(NUMBER_PAGE).responseIs(NUMBER_PAGE_CONTENTS);
+        when(NEW_CLIENT).requests(NUMBER_PAGE).responseIs(NUMBER_PAGE_CONTENTS);
+        when(VIP_CLIENT).requests(NUMBER_PAGE).responseIs(NUMBER_PAGE_CONTENTS);
+        when(ANY_CLIENT).requests(MISSING_PAGE).errorIs(NO_SUCH_PAGE_EXCEPTION);
+        when(NEW_CLIENT).requests(MISSING_PAGE).errorIs(NO_SUCH_PAGE_EXCEPTION);
+        when(VIP_CLIENT).requests(MISSING_PAGE).errorIs(NO_SUCH_PAGE_EXCEPTION);
     }
 
     @Test
-    void shouldSetSpecificStubForAClient() {
-        final Stub newHome = Stub.forQueryId("home").withContents(VIP_HOME_PAGE).withResponseId("home");
-        this.target.addClientStub(newHome, VIP_CLIENT);
-        when(VIP_CLIENT).requests(HOME_PAGE).then(VIP_HOME_PAGE);
-        when(NEW_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
-        when(ANY_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
-    }
+    void shouldSetSpecificStubForASource() {
+        this.facade.setStubForQuerySource(VIP_CLIENT, HOME_PAGE, VIP_PAGE_RESPONSE);
 
-    @Test
-    void shouldChooseActiveStubFromStoredStubs() {
-        final Stub newHome = Stub.forQueryId("home").withContents(DEFAULT_NUMBER_PAGE).withResponseId("number");
-        this.target.addClientStub(newHome, VIP_CLIENT);
-        when(VIP_CLIENT).requests(HOME_PAGE).then(DEFAULT_NUMBER_PAGE);
-        when(NEW_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
-        when(ANY_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
-
-        this.target.setActiveResponse(VIP_CLIENT, HOME_PAGE, new ResponseId("home"));
-        when(VIP_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
-        when(NEW_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
-        when(ANY_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
-
-        this.target.setActiveResponse(VIP_CLIENT, HOME_PAGE, new ResponseId("number"));
-        when(VIP_CLIENT).requests(HOME_PAGE).then(DEFAULT_NUMBER_PAGE);
-        when(NEW_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
-        when(ANY_CLIENT).requests(HOME_PAGE).then(DEFAULT_HOME_PAGE);
+        when(VIP_CLIENT).requests(HOME_PAGE).responseIs(VIP_PAGE_CONTENTS);
+        when(NEW_CLIENT).requests(HOME_PAGE).responseIs(HOME_PAGE_CONTENTS);
+        when(ANY_CLIENT).requests(HOME_PAGE).responseIs(HOME_PAGE_CONTENTS);
     }
 
     @Test
     void shouldReturnCorrectCommonState() {
-        final Map<QueryId, GenericResponse> actual = this.target.getCurrentCommonStubs();
-        Assertions.assertThat(actual)
-            .containsEntry(HOME_PAGE, DEFAULT_HOME_PAGE)
-            .containsEntry(NUMBER_PAGE, DEFAULT_NUMBER_PAGE)
-            .containsEntry(MISSING_PAGE, NO_SUCH_PAGE);
+        Assertions.assertThat(this.facade.activeStubsForSource(ANY_CLIENT))
+            .containsExactlyInAnyOrderEntriesOf(Map.of(
+                HOME_PAGE, HOME_PAGE_RESPONSE,
+                NUMBER_PAGE, NUMBER_PAGE_RESPONSE,
+                MISSING_PAGE, MISSING_PAGE_RESPONSE
+            ));
     }
 
     @Test
-    void shouldCombineCommonAndClientCurrentState() {
-        final Stub newHome = Stub.forQueryId("home").withContents(VIP_HOME_PAGE).withResponseId("home");
-        this.target.addClientStub(newHome, VIP_CLIENT);
-        final Map<QueryId, GenericResponse> actual = this.target.getCurrentClientStubs(VIP_CLIENT);
-        Assertions.assertThat(actual)
-            .containsEntry(HOME_PAGE, VIP_HOME_PAGE)
-            .containsEntry(NUMBER_PAGE, DEFAULT_NUMBER_PAGE)
-            .containsEntry(MISSING_PAGE, NO_SUCH_PAGE);
+    void shouldCombineCommonAndSourceCurrentState() {
+        this.facade.setStubForQuerySource(VIP_CLIENT, HOME_PAGE, VIP_PAGE_RESPONSE);
+        Assertions.assertThat(this.facade.activeStubsForSource(VIP_CLIENT))
+            .containsExactlyInAnyOrderEntriesOf(Map.of(
+                HOME_PAGE, VIP_PAGE_RESPONSE,
+                NUMBER_PAGE, NUMBER_PAGE_RESPONSE,
+                MISSING_PAGE, MISSING_PAGE_RESPONSE
+            ));
     }
 
-    private When when(SourceId client) {
-        return new When(client);
+    @Test
+    void shouldResetStubsForSource() {
+        this.facade.setStubForQuerySource(VIP_CLIENT, HOME_PAGE, VIP_PAGE_RESPONSE);
+        this.facade.resetStubsForSource(VIP_CLIENT);
+        Assertions.assertThat(this.facade.activeStubsForSource(VIP_CLIENT))
+            .containsExactlyInAnyOrderEntriesOf(Map.of(
+                HOME_PAGE, HOME_PAGE_RESPONSE,
+                NUMBER_PAGE, NUMBER_PAGE_RESPONSE,
+                MISSING_PAGE, MISSING_PAGE_RESPONSE
+            ));
+    }
+
+    private When when(SourceId source) {
+        return new When(source);
     }
 
     private class When {
-        private final SourceId client;
+        private final SourceId source;
 
-        public When(SourceId client) {
-            this.client = client;
+        public When(SourceId source) {
+            this.source = source;
         }
 
         public Then requests(QueryId query) {
-            return new Then(client, query);
+            return new Then(source, query);
         }
     }
 
     private class Then {
-        private final SourceId client;
+        private final SourceId source;
         private final QueryId query;
 
-        public Then(SourceId client, QueryId query) {
-            this.client = client;
+        public Then(SourceId source, QueryId query) {
+            this.source = source;
             this.query = query;
         }
 
-        public void then(GenericResponse response) {
-            Assertions.assertThat(target.nextResponseFor(this.client, this.query)).isEqualTo(response);
+        public <T> void responseIs(T expected) {
+            Assertions.assertThat(facade.next(this.source, this.query, expected.getClass())).isEqualTo(expected);
         }
 
-        public void thenThrows(RuntimeException exception) {
-            Assertions.assertThatThrownBy(() -> target.nextResponseFor(this.client, this.query))
-                .isInstanceOf(exception.getClass())
-                .hasMessage(exception.getMessage());
+        public void errorIs(RuntimeException expected) {
+            Assertions.assertThatThrownBy(() -> facade.next(this.source, this.query, expected.getClass()))
+                .isInstanceOf(expected.getClass())
+                .hasMessage(expected.getMessage());
         }
     }
 }

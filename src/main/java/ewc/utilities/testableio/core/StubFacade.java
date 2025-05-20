@@ -42,4 +42,6 @@ public interface StubFacade {
     <T> T next(SourceId source, QueryId query, Class<T> type);
 
     Map<QueryId, Response> activeStubsForSource(SourceId source);
+
+    void resetStubsForSource(SourceId source);
 }

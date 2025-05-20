@@ -148,4 +148,7 @@ class BasicStubFacadeTest {
         assertThat(target.next(anySource, SPECIFIC_URL, ResponseId.class))
             .isEqualTo(new ResponseId("default response"));
     }
+
+    record ResponseId(String id) {
+    }
 }
