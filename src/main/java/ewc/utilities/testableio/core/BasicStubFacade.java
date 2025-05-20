@@ -63,6 +63,11 @@ class BasicStubFacade implements StubFacade {
 
     @Override
     public Map<QueryId, Response> activeStubsForSource(SourceId source) {
-        return Map.of();
+        return this.stubs.activeStubsForSource(source);
+    }
+
+    @Override
+    public void resetStubsForSource(SourceId source) {
+        this.stubs.resetStubsForSource(source);
     }
 }

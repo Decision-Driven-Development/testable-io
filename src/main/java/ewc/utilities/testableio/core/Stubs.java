@@ -29,6 +29,7 @@ import ewc.utilities.testableio.responses.Response;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiFunction;
+import java.util.stream.Collectors;
 
 public class Stubs {
     private final Map<ResponseId, Response> stubs = new HashMap<>();
@@ -73,6 +74,22 @@ public class Stubs {
 
     public void setConverterFor(QueryId query, BiFunction<Object, Map<String, Object>, ?> converter) {
         this.converters.put(query, converter);
+    }
+
+    public Map<QueryId, Response> activeStubsForSource(SourceId source) {
+        Map<QueryId, Response> result = responsesFor(SourceId.DEFAULT_SOURCE);
+        result.putAll(responsesFor(source));
+        return result;
+    }
+
+    private Map<QueryId, Response> responsesFor(SourceId source) {
+        return this.stubs.entrySet().stream()
+            .filter(e -> e.getKey().source == source)
+            .collect(Collectors.toMap(e -> e.getKey().query, Map.Entry::getValue));
+    }
+
+    public void resetStubsForSource(SourceId source) {
+        this.stubs.entrySet().removeIf(e -> e.getKey().source == source);
     }
 
     record ResponseId(SourceId source, QueryId query) {

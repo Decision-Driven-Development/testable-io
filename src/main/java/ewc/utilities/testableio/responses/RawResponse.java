@@ -25,7 +25,6 @@
 package ewc.utilities.testableio.responses;
 
 
-import ewc.utilities.testableio.core.ResponseId;
 import java.util.Map;
 import java.util.function.BiFunction;
 import lombok.EqualsAndHashCode;
@@ -49,40 +48,25 @@ public class RawResponse implements Response {
     private final Map<String, Object> metadata;
 
     /**
-     * Identity information of the stubbed response. Cannot be null.
-     */
-    private final ResponseId id;
-
-    /**
      * Primary constructor.
      *
-     * @param id The identity information of the stubbed response. Cannot be null.
      * @param content The main content of the stubbed response. Cannot be null.
      * @param metadata The metadata associated with the stubbed response. Cannot be null.
      */
     public RawResponse(
-        @NonNull final ResponseId id,
         @NonNull final Object content,
         @NonNull final Map<String, Object> metadata
     ) {
         this.content = content;
         this.metadata = metadata;
-        this.id = id;
     }
 
     public RawResponse(@NonNull final Object content) {
-        this(ResponseId.random(), content, Map.of());
+        this(content, Map.of());
     }
 
     public <R> R convertedUsing(BiFunction<Object, Map<String, Object>, R> converter) {
         return converter.apply(this.content, this.metadata);
-    }
-
-    public RawResponse tryThrowing() {
-        if (this.content instanceof RuntimeException exception) {
-            throw exception;
-        }
-        return this;
     }
 
     @Override

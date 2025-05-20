@@ -41,7 +41,6 @@ final class RawResponseTest {
     @BeforeEach
     void setUp() {
         this.target = new RawResponse(
-                new ResponseId("test"),
                 "test",
                 Map.of("http_response_code", 200, "x-header", "12345")
         );
