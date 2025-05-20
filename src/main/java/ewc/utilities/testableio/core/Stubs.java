@@ -83,7 +83,7 @@ class Stubs implements StubFacade {
 
     @Override
     public void resetStubsForSource(SourceId source) {
-        this.stubs.entrySet().removeIf(e -> e.getKey().source == source);
+        this.stubs.entrySet().removeIf(e -> e.getKey().source.equals(source));
     }
 
     private Response stubFor(ResponseId key) {
@@ -100,7 +100,7 @@ class Stubs implements StubFacade {
 
     private Map<QueryId, Response> responsesFor(SourceId source) {
         return this.stubs.entrySet().stream()
-            .filter(e -> e.getKey().source == source)
+            .filter(e -> e.getKey().source.equals(source))
             .collect(Collectors.toMap(
                 e -> e.getKey().query,
                 e -> {
