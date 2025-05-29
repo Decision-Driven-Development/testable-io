@@ -73,4 +73,9 @@ public class RawResponse implements Response {
     public <R> R next(BiFunction<Object, Map<String, Object>, R> transformer) {
         return this.convertedUsing(transformer);
     }
+
+    @Override
+    public Object peekContent() {
+        return this.content;
+    }
 }

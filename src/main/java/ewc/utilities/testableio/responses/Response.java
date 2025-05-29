@@ -33,4 +33,7 @@ public interface Response {
     default Response peek() {
         return this;
     }
+
+    Object peekContent();
+
 }

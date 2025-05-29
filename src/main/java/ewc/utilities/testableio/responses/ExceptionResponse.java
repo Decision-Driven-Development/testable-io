@@ -27,7 +27,7 @@ package ewc.utilities.testableio.responses;
 import java.util.Map;
 import java.util.function.BiFunction;
 
-public class ExceptionResponse implements Response{
+public class ExceptionResponse implements Response {
     private final RuntimeException exception;
 
     public ExceptionResponse(RuntimeException exception) {
@@ -37,5 +37,10 @@ public class ExceptionResponse implements Response{
     @Override
     public <R> R next(BiFunction<Object, Map<String, Object>, R> transformer) {
         throw this.exception;
+    }
+
+    @Override
+    public Object peekContent() {
+        return "%s: %s".formatted(this.exception.getClass().getSimpleName(), this.exception.getMessage());
     }
 }

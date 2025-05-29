@@ -54,6 +54,11 @@ public class SequencedResponse implements Response {
         return this.responses[this.index.currentValue()].peek();
     }
 
+    @Override
+    public Object peekContent() {
+        return this.peek().peekContent();
+    }
+
     private static final class IncrementalIndex {
         /**
          * The thread-safe counter providing the index of the next response to be returned.

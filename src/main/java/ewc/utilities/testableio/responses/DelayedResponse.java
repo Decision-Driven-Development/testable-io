@@ -43,4 +43,13 @@ public class DelayedResponse implements Response {
         Thread.sleep(this.millis);
         return this.response.next(transformer);
     }
+
+    @Override
+    public Object peekContent() {
+        return this.response.peekContent();
+    }
+
+    public int delayMillis() {
+        return this.millis;
+    }
 }
