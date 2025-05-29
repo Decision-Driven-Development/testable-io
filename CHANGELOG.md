@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.1](https://github.com/Decision-Driven-Development/testable-io/compare/v0.3.0...v0.3.1) (2025-05-29)
+
+
+### Features
+
+* ability to extract delay value from the response ([afd860b](https://github.com/Decision-Driven-Development/testable-io/commit/afd860b0cde46779e37cc435ac17dd4871ec21aa)), closes [#14](https://github.com/Decision-Driven-Development/testable-io/issues/14)
+
 ## [0.3.0](https://github.com/Decision-Driven-Development/testable-io/compare/v0.2.1...v0.3.0) (2025-05-20)
 
 
