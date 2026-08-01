@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.3.2](https://github.com/Decision-Driven-Development/testable-io/compare/v0.3.1...v0.3.2) (2026-08-01)
+
+
+### Bug Fixes
+
+* changed lombok dependency scope to provided ([decad5e](https://github.com/Decision-Driven-Development/testable-io/commit/decad5e05072ca383947dbd103e34a158dacfedc))
+
 ### [0.3.1](https://github.com/Decision-Driven-Development/testable-io/compare/v0.3.0...v0.3.1) (2025-05-29)
 
 
